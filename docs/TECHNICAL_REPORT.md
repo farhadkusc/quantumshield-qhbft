@@ -1,6 +1,6 @@
 # Technical report
 
-**Version 0.2.5.** Author: Md Farhad Kabir.
+**Version 0.2.6.** Author: Md Farhad Kabir.
 
 ## Cost model
 
@@ -24,7 +24,9 @@ h \cdot d + (s_{\text{sign}} \cdot t_{\text{sign}} + s_{\text{verify}} \cdot t_{
 
 ## Bandwidth
 
-On a 1 Gbps link, B = 125000000 bytes per second. With signature length S the per-node bound is B / (N · S) and the network bound is B / (N² · S). For ML-DSA-87, S = 4627. At N = 64 those readings are 422.1147611843527 and 6.595543143505511 decisions per second. The per-node reading is about 420. It is N times the network reading.
+On a 1 Gbps link, B = 125000000 bytes per second. With signature length S the per-node bound is B / (N · S) and the whole-exchange bound is B / (N² · S). For ML-DSA-87, S = 4627. At N = 64 the quotients are 422.1147611843527 and 6.595543143505511, recorded as 422 and 6.6. The per-node reading is N times the whole-exchange reading.
+
+At the same n and S, a PBFT view-change of N³ = 262144 signatures is set against an empty-block fallback of N² = 4096 signatures. The exact empty-block count is n(n − 1) = 4032. The byte pair is 1212940288 and 18952192, about 1.2 GB and about 19 MB. Whole-exchange time is 9.703522304 s and 0.151617536 s. Per-node time is 0.151617536 s and 0.002369024 s. For a round in which a replica holds a prepared value, the fallback carries it forward and adds signatures. The figures are for the round in which none does.
 
 ## Why the quorum does not shorten the critical path
 

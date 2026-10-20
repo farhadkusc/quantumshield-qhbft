@@ -1,18 +1,18 @@
 # QH-BFT
 
-Byte, latency, and bandwidth accounting for one Byzantine consensus decision when the signature is FIPS 204 ML-DSA.
+This repository is an analytical model of message counts, bytes, and critical-path time. It contains no consensus implementation and no network run. Signature lengths are FIPS 204 Table 2. Timings are PQShield medians, not remeasured. It was written after the petition was filed. Implementation and benchmarking on the federal algorithms is the first phase of the proposed work and has not been done. `benchmarks/run_benchmark.py` evaluates formulas and measures nothing.
 
 Md Farhad Kabir
 
-Research draft for package 0.2.5. Every figure in this draft is taken from `benchmarks/results/evaluation.json` or `benchmarks/results/dummy_evaluation.json` in farhadkusc/quantumshield-qhbft. Bytes and seconds stay in their own fields. The bandwidth readings are B / (N · S) per node and B / (N² · S) for the network.
+Research draft for package 0.2.6. Every figure in this draft is taken from `benchmarks/results/evaluation.json` or `benchmarks/results/dummy_evaluation.json` in farhadkusc/quantumshield-qhbft. Bytes and seconds stay in their own fields. The bandwidth readings are B / (N · S) per node and B / (N² · S) for the whole exchange.
 
 ## Abstract
 
 An honest round has three broadcasts. The primary sends PRE-PREPARE to the other n − 1 validators. Every validator sends PREPARE to the other n − 1. Every validator sends COMMIT to the other n − 1 after it has seen q = 2f + 1 prepares. At n = 64 that is 8127 messages. With an ML-DSA-87 signature of 4627 bytes the round moves 37603629 signature bytes.
 
-The critical path is three network hops, three signatures, and 85 verifications. At a 20 ms one-way delay, using the published medians of 96.7 microseconds to sign and 54.1 microseconds to verify, the path is 0.0648886 seconds.
+The critical path is three network hops, three signatures, and 85 verifications. Under the assumed 20 ms one-way delay, using the published medians of 96.7 microseconds to sign and 54.1 microseconds to verify, the path is 0.0648886 seconds.
 
-A 1 Gbps link carries 125000000 bytes per second. The per-node bound is B / (N · S). At n = 64 and S = 4627 it is 422.1147611843527 decisions per second, which is about 420. The network bound is B / (N² · S) with the same B and S, which is 6.595543143505511 decisions per second. The per-node figure is N times the network figure.
+A 1 Gbps link carries 125000000 bytes per second. The whole-exchange reading is B / (N² · S) = 6.6. The per-node reading is B / (N · S) = 422. The quotients at n = 64 and S = 4627 are 6.595543143505511 and 422.1147611843527. The per-node figure is N times the whole-exchange figure.
 
 ## 1. Cryptographic sizes
 
@@ -75,7 +75,7 @@ The path moves slowly with n because the 60 ms of propagation dominates the cryp
 
 A 1 Gbps link is 125000000 bytes per second. Two denominators are reported, both with S = 4627.
 
-The per-node bound is B / (N · S). The network bound is B / (N² · S).
+The per-node bound is B / (N · S). The whole-exchange bound is B / (N² · S).
 
 | n | Per-node bound | N² bound |
 | ---: | ---: | ---: |
@@ -89,9 +89,23 @@ N · S = 64 · 4627 = 296128. Dividing 125000000 by 296128 gives 422.11476118435
 
 N² · S = 64 · 64 · 4627 = 18952192. Dividing 125000000 by 18952192 gives 6.595543143505511.
 
-422.1147611843527 / 6.595543143505511 = 64, so the per-node reading is the network reading multiplied by N. At n = 64 the per-node reading is about 420 decisions per second.
+422.1147611843527 / 6.595543143505511 = 64, so the per-node reading is the whole-exchange reading multiplied by N. At n = 64 those readings are 422 and 6.6.
 
 At n = 4 the two bounds are 6753.836178949643 and 1688.4590447374107. At n = 16 they are 1688.4590447374107 and 105.52869029608817.
+
+## 6.1 View-change against the empty-block fallback
+
+`fallback_comparison` evaluates the leading-order pair at n = 64 with S = 4627 and B = 125000000 bytes per second. A PBFT view-change is N³ = 262144 signatures. The empty-block fallback is N² = 4096 signatures. The exact count of that broadcast is n(n − 1) = 4032.
+
+| | Signatures | Bytes | Whole exchange, seconds | Per node, seconds |
+| --- | ---: | ---: | ---: | ---: |
+| View-change, N³ | 262144 | 1212940288 | 9.703522304 | 0.151617536 |
+| Empty-block fallback, N² | 4096 | 18952192 | 0.151617536 | 0.002369024 |
+| Exact empty-block count, n(n − 1) | 4032 | | | |
+
+1212940288 bytes is about 1.2 GB. 18952192 bytes is about 19 MB. The whole-exchange times are 9.7 s and 0.15 s. The per-node times are 0.15 s and 2.4 ms.
+
+For a round in which a replica holds a prepared value, the fallback carries it forward and adds signatures. The figures are for the round in which none does.
 
 ## 7. Second message count
 
@@ -155,7 +169,7 @@ The comparison with 0.75 is strict. A load of 0.75 stays on ML-DSA-87. Grey Harb
 
 ## 10. One decision at n = 4
 
-f = 1 and q = 3. PRE-PREPARE is 3 messages, PREPARE is 12, COMMIT is 12, and the round is 27 messages. The empty-block fallback is 12 messages. Aggregate ML-DSA-87 bytes are 27 · 4627 = 124929. The path verifies 5 signatures and signs 3. Latency is 0.0605606 seconds. The per-node bound is 6753.836178949643 decisions per second. The network bound is 1688.4590447374107 decisions per second.
+f = 1 and q = 3. PRE-PREPARE is 3 messages, PREPARE is 12, COMMIT is 12, and the round is 27 messages. The empty-block fallback is 12 messages. Aggregate ML-DSA-87 bytes are 27 · 4627 = 124929. The path verifies 5 signatures and signs 3. Latency is 0.0605606 seconds. The per-node bound is 6753.836178949643 decisions per second. The whole-exchange bound is 1688.4590447374107 decisions per second.
 
 ## 11. Software
 
@@ -177,4 +191,4 @@ python3 benchmarks/run_benchmark.py
 
 python3 benchmarks/run_dummy.py
 
-Package version recorded in the result file: 0.2.5.
+Package version recorded in the result file: 0.2.6.

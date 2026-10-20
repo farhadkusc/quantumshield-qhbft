@@ -1,24 +1,36 @@
 # QH-BFT / QuantumShield
 
-Closed-form cost of Byzantine consensus once signatures are ML-DSA instead of ECDSA-P384.
+This repository is an analytical model of message counts, bytes, and critical-path time. It contains no consensus implementation and no network run. Signature lengths are FIPS 204 Table 2. Timings are PQShield medians, not remeasured. It was written after the petition was filed. Implementation and benchmarking on the federal algorithms is the first phase of the proposed work and has not been done. `benchmarks/run_benchmark.py` evaluates formulas and measures nothing.
 
-Author: **Md Farhad Kabir**. Package **0.2.5**. The research draft is [docs/PAPER.md](docs/PAPER.md). The same text is `docs/QuantumShield_Concept_Summary_v3.docx`. Both are generated from `benchmarks/results/evaluation.json`.
+Author: **Md Farhad Kabir**. Package **0.2.6**. The research draft is [docs/PAPER.md](docs/PAPER.md), generated from `benchmarks/results/evaluation.json`.
 
 Signature lengths are FIPS 204 Table 2 (13 August 2024): ML-DSA-44 is 2,420 bytes, ML-DSA-65 is 3,309, ML-DSA-87 is 4,627. Sign and verify times are the medians published by the [PQShield NIST Signature Zoo](https://pqshield.github.io/nist-sigs-zoo) for an Intel Xeon Platinum 8488C on 22 September 2026 (1,000 iterations): ML-DSA-87 signs in 96.7 µs and verifies in 54.1 µs. Those times were not remeasured here. ECDSA-P384 is carried as a 96-byte signature only. No ECDSA timing from that host is cited, so the ECDSA rows have a byte count and a null critical path.
 
 ## Bandwidth, ML-DSA-87, 1 Gbps
 
-The two bandwidth readings are `B / (N · S)` per node and `B / (N² · S)` for the network. `B` is 125,000,000 bytes per second on a 1 Gbps link. `S` is 4,627 bytes.
+The two bandwidth readings are `B / (N · S)` per node and `B / (N² · S)` for the whole exchange. `B` is 125,000,000 bytes per second on a 1 Gbps link. `S` is 4,627 bytes.
 
-| n | Per-node B/(N·S) | Network B/(N²·S) |
+| n | Per-node B/(N·S) | Whole-exchange B/(N²·S) |
 | ---: | ---: | ---: |
 | 4 | 6,753.836179 /s | 1,688.459045 /s |
 | 16 | 1,688.459045 /s | 105.528690 /s |
 | 64 | 422.114761 /s | 6.595543 /s |
 
-At n = 64 the per-node reading is 422.114761 decisions per second. That is `B / (N · S)`, about 420. The network reading is 6.595543 decisions per second. The per-node figure is N times the network figure.
+At n = 64 the whole-exchange reading is B/(N² · S) = 6.6 and the per-node reading is B/(N · S) = 422. The values in the table are the quotients, 6.595543 and 422.114761. The per-node figure is N times the whole-exchange figure.
 
-The critical path remains a time, not a third bandwidth reading. At n = 64 it is three hops, three signatures, and `1 + 2(q − 1)` verifications: 0.0648886 s, using the 20 ms delay and the PQShield medians of 96.7 µs to sign and 54.1 µs to verify.
+The critical path at n = 64 is 0.0648886 s under the assumed 20 ms one-way delay: three hops, three signatures, and `1 + 2(q − 1)` verifications, using the PQShield medians of 96.7 µs to sign and 54.1 µs to verify.
+
+## View-change against the empty-block fallback
+
+Leading order at n = 64, ML-DSA-87, 1 Gbps. A PBFT view-change is N³ signatures. The empty-block fallback is N² signatures. The exact count of that broadcast is n(n − 1).
+
+| | Signatures | Bytes | Whole exchange | Per node |
+| --- | ---: | ---: | ---: | ---: |
+| View-change, N³ | 262,144 | 1,212,940,288 (about 1.2 GB) | 9.703522304 s (9.7 s) | 0.151617536 s (0.15 s) |
+| Empty-block fallback, N² | 4,096 | 18,952,192 (about 19 MB) | 0.151617536 s (0.15 s) | 0.002369024 s (2.4 ms) |
+| Exact empty-block count, n(n − 1) | 4,032 | | | |
+
+For a round in which a replica holds a prepared value, the fallback carries it forward and adds signatures. The figures are for the round in which none does.
 
 ## What is counted
 

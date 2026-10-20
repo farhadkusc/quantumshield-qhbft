@@ -1,6 +1,6 @@
 {
   "package": "quantumshield-qhbft",
-  "package_version": "0.2.5",
+  "package_version": "0.2.6",
   "profile": "smoke",
   "host": "hds-6u865akbnfu3",
   "ran_on_wulver": false,

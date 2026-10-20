@@ -91,3 +91,47 @@ def link_budget(
         "per_node_bound_per_s": bytes_per_s / (n * signature_bytes),
         "paper_n2_bound_per_s": bytes_per_s / (n * n * signature_bytes),
     }
+
+
+def fallback_comparison(
+    n: int = 64,
+    signature_bytes: int = 4627,
+    bandwidth_bps: float = 1_000_000_000,
+) -> dict:
+    """PBFT view-change against the empty-block fallback, leading order.
+
+    View-change is N^3 signatures. The empty-block fallback is N^2 signatures.
+    The exact broadcast count is n(n - 1), reported beside the N^2 term.
+    Byte and time figures use S and a 1 Gbps link. They are for the round in
+    which no replica holds a prepared value.
+    """
+    byte_rate = bandwidth_bps / 8.0
+    view_signatures = n ** 3
+    fallback_signatures = n ** 2
+    exact_messages = n * (n - 1)
+
+    def side(signatures: int) -> dict:
+        nbytes = signatures * signature_bytes
+        whole = nbytes / byte_rate
+        return {
+            "signatures": signatures,
+            "bytes": nbytes,
+            "whole_exchange_s": whole,
+            "per_node_s": whole / n,
+        }
+
+    view = side(view_signatures)
+    fallback = side(fallback_signatures)
+    return {
+        "n": n,
+        "signature_bytes": signature_bytes,
+        "bytes_per_s": byte_rate,
+        "view_change": view,
+        "empty_block_leading": fallback,
+        "empty_block_exact_messages": exact_messages,
+        "qualification": (
+            "For a round in which a replica holds a prepared value, the fallback "
+            "carries it forward and adds signatures. The figures are for the round "
+            "in which none does."
+        ),
+    }

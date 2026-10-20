@@ -1,6 +1,6 @@
 {
   "package": "quantumshield-qhbft",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "safety_n4": {
     "n": 4,
     "f": 1,
@@ -121,6 +121,25 @@
       "paper_n2_bound_per_s": 6.595543143505511
     }
   ],
+  "fallback_comparison_n64": {
+    "n": 64,
+    "signature_bytes": 4627,
+    "bytes_per_s": 125000000.0,
+    "view_change": {
+      "signatures": 262144,
+      "bytes": 1212940288,
+      "whole_exchange_s": 9.703522304,
+      "per_node_s": 0.151617536
+    },
+    "empty_block_leading": {
+      "signatures": 4096,
+      "bytes": 18952192,
+      "whole_exchange_s": 0.151617536,
+      "per_node_s": 0.002369024
+    },
+    "empty_block_exact_messages": 4032,
+    "qualification": "For a round in which a replica holds a prepared value, the fallback carries it forward and adds signatures. The figures are for the round in which none does."
+  },
   "rows": [
     {
       "protocol": "pbft",
@@ -321,5 +340,5 @@
       "one_way_ms": 20.0
     }
   ],
-  "disclaimer": "Bytes are message-pattern times FIPS signature length. Milliseconds add published PQShield verify/sign medians on the critical path."
+  "disclaimer": "benchmarks/run_benchmark.py evaluates formulas and measures nothing. Bytes are message-pattern times FIPS signature length. Milliseconds add published PQShield verify/sign medians on the critical path. The 20 ms one-way delay is an assumption."
 }

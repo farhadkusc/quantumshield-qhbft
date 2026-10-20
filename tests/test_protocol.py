@@ -8,7 +8,7 @@ import numpy as np
 
 from qhbft.costs import decision_cost, quorum
 from qhbft.protocol import primary_id, quorum_ids, select_signature
-from qhbft.roundsim import link_budget
+from qhbft.roundsim import fallback_comparison, link_budget
 from qhbft.safety import exhaustive_n4, intersects_honestly
 
 
@@ -59,6 +59,20 @@ class ResearchTests(unittest.TestCase):
         row = decision_cost("pbft", 4, "ECDSA-P384")
         self.assertIsNone(row["critical_path_ms"])
         self.assertEqual(row["bytes"] % 96, 0)
+
+    def test_view_change_against_empty_block_at_n64(self):
+        row = fallback_comparison()
+        self.assertEqual(row["view_change"]["signatures"], 262_144)
+        self.assertEqual(row["empty_block_leading"]["signatures"], 4_096)
+        self.assertEqual(row["empty_block_exact_messages"], 4_032)
+        self.assertEqual(row["view_change"]["bytes"], 262_144 * 4627)
+        self.assertEqual(row["empty_block_leading"]["bytes"], 4_096 * 4627)
+        self.assertEqual(round(row["view_change"]["bytes"] / 1_000_000_000, 1), 1.2)
+        self.assertEqual(round(row["empty_block_leading"]["bytes"] / 1_000_000), 19)
+        self.assertEqual(round(row["view_change"]["whole_exchange_s"], 1), 9.7)
+        self.assertEqual(round(row["empty_block_leading"]["whole_exchange_s"], 2), 0.15)
+        self.assertEqual(round(row["view_change"]["per_node_s"], 2), 0.15)
+        self.assertEqual(round(row["empty_block_leading"]["per_node_s"] * 1000, 1), 2.4)
 
 
 if __name__ == "__main__":

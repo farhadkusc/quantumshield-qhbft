@@ -1,7 +1,8 @@
-"""QH-BFT research prototype, v0.2.5.
+"""QH-BFT analytical cost model, v0.2.6.
 
-Synthetic deployment scenarios live under data/dummy and are not measurements.
-Bandwidth readings are B/(N·S) per node and B/(N²·S) for the network.
+Message counts, bytes, and critical-path time. No consensus implementation
+and no network run. Bandwidth readings are B/(N·S) per node and B/(N²·S)
+for the whole exchange.
 """
 
-__version__ = "0.2.5"
+__version__ = "0.2.6"
