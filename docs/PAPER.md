@@ -4,15 +4,15 @@ Byte, latency, and bandwidth accounting for one Byzantine consensus decision whe
 
 Md Farhad Kabir
 
-Research draft for package 0.2.4. Every figure in this draft is taken from `benchmarks/results/evaluation.json` or `benchmarks/results/dummy_evaluation.json` in farhadkusc/quantumshield-qhbft. Bytes, seconds, and decisions per second are separate fields. They are not added.
+Research draft for package 0.2.5. Every figure in this draft is taken from `benchmarks/results/evaluation.json` or `benchmarks/results/dummy_evaluation.json` in farhadkusc/quantumshield-qhbft. Bytes and seconds stay in their own fields. The bandwidth readings are B / (N · S) per node and B / (N² · S) for the network.
 
 ## Abstract
 
 An honest round has three broadcasts. The primary sends PRE-PREPARE to the other n − 1 validators. Every validator sends PREPARE to the other n − 1. Every validator sends COMMIT to the other n − 1 after it has seen q = 2f + 1 prepares. At n = 64 that is 8127 messages. With an ML-DSA-87 signature of 4627 bytes the round moves 37603629 signature bytes.
 
-The critical path is three network hops, three signatures, and 85 verifications. At a 20 ms one-way delay, using the published medians of 96.7 microseconds to sign and 54.1 microseconds to verify, the path is 0.0648886 seconds. The reciprocal is 15.411027514848524 decisions per second.
+The critical path is three network hops, three signatures, and 85 verifications. At a 20 ms one-way delay, using the published medians of 96.7 microseconds to sign and 54.1 microseconds to verify, the path is 0.0648886 seconds.
 
-A 1 Gbps link carries 125000000 bytes per second. If that one link must carry every signature byte in the round, the bound is 3.3241472518516764 decisions per second. If the primary has its own 1 Gbps link and sends only the 3(n − 1) signatures it originates, the bound is 142.9383318296221. The formula B / (N² · S) with the same B and S is 6.595543143505511. Restricting the broadcast to a quorum of 43 yields 7.391339183529022 on one shared link.
+A 1 Gbps link carries 125000000 bytes per second. The per-node bound is B / (N · S). At n = 64 and S = 4627 it is 422.1147611843527 decisions per second, which is about 420. The network bound is B / (N² · S) with the same B and S, which is 6.595543143505511 decisions per second. The per-node figure is N times the network figure.
 
 ## 1. Cryptographic sizes
 
@@ -67,37 +67,31 @@ At n = 64, q = 43, the verification count is 1 + 2 · 42 = 85. Then
 
 L(64) = 0.060 + 0.0002901 + 85 · 0.0000541 = 0.060 + 0.0002901 + 0.0045985 = 0.0648886 seconds.
 
-The latency bound is the reciprocal, 15.411027514848524 decisions per second. The same arithmetic at n = 4, where the path verifies 5 signatures, gives 0.0605606 seconds and 16.512385940694116 decisions per second. At n = 16 the path verifies 21 signatures and takes 0.0614262 seconds, which is 16.279698239513433 decisions per second.
+The same arithmetic at n = 4, where the path verifies 5 signatures, gives 0.0605606 seconds. At n = 16 the path verifies 21 signatures and takes 0.0614262 seconds.
 
-The latency bound moves slowly with n because the 60 ms of propagation dominates the cryptographic term. The bandwidth bounds move quickly with n because the byte count is quadratic.
+The path moves slowly with n because the 60 ms of propagation dominates the cryptographic term. The bandwidth readings move as 1/N and 1/N².
 
 ## 6. Bandwidth bounds
 
-A 1 Gbps link is 125000000 bytes per second. Four denominators are reported.
+A 1 Gbps link is 125000000 bytes per second. Two denominators are reported, both with S = 4627.
 
-Primary egress is 3(n − 1) signatures: the primary sends PRE-PREPARE, PREPARE, and COMMIT. Replica egress is 2(n − 1) signatures. Aggregate bytes are M(n) · S. Quorum bytes use Q(n) = q + 2q(q − 1) messages, the count used by `decision_cost` for the qh-quorum pattern. The N² denominator is n² · S, which is the formula T(N) ≤ B / (N² · S) evaluated at B = 125000000 bytes per second.
+The per-node bound is B / (N · S). The network bound is B / (N² · S).
 
-| n | Messages | Quorum messages | Aggregate bytes | Quorum bytes | Primary bytes | Replica bytes | Latency s | Latency bound | Primary bound | Aggregate bound | Quorum bound | N² bound |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 4 | 27 | 15 | 124929 | 69405 | 41643 | 27762 | 0.0605606 | 16.512385940694116 | 3001.7049684220638 | 1000.5683228073545 | 1801.0229810532383 | 1688.4590447374107 |
-| 16 | 495 | 231 | 2290365 | 1068837 | 208215 | 138810 | 0.0614262 | 16.279698239513433 | 600.3409936844128 | 54.57645397131025 | 116.94954422423625 | 105.52869029608817 |
-| 64 | 8127 | 3655 | 37603629 | 16911685 | 874503 | 583002 | 0.0648886 | 15.411027514848524 | 142.9383318296221 | 3.3241472518516764 | 7.391339183529022 | 6.595543143505511 |
+| n | Per-node bound | N² bound |
+| ---: | ---: | ---: |
+| 4 | 6753.836178949643 | 1688.4590447374107 |
+| 16 | 1688.4590447374107 | 105.52869029608817 |
+| 64 | 422.1147611843527 | 6.595543143505511 |
 
 Identities at n = 64, S = 4627.
 
-Aggregate bytes = 8127 · 4627 = 37603629. Dividing 125000000 by that count gives 3.3241472518516764.
+N · S = 64 · 4627 = 296128. Dividing 125000000 by 296128 gives 422.1147611843527.
 
-Primary bytes = 3 · 63 · 4627 = 874503. Dividing 125000000 by that count gives 142.9383318296221.
+N² · S = 64 · 64 · 4627 = 18952192. Dividing 125000000 by 18952192 gives 6.595543143505511.
 
-Replica bytes = 2 · 63 · 4627 = 583002. Dividing 125000000 by that count gives 214.40749774443313.
+422.1147611843527 / 6.595543143505511 = 64, so the per-node reading is the network reading multiplied by N. At n = 64 the per-node reading is about 420 decisions per second.
 
-Quorum messages = 43 + 2 · 43 · 42 = 3655. Quorum bytes = 3655 · 4627 = 16911685. Dividing 125000000 by that count gives 7.391339183529022.
-
-N² bytes = 64 · 64 · 4627 = 18952192. Dividing 125000000 by 18952192 gives 6.595543143505511.
-
-The N² formula and the honest-round formula are different denominators. 8127 is (n − 1)(2n + 1). n² is 4096. The honest round sends more signature-carrying messages than n², so its shared-link bound, 3.3241472518516764, is lower than 6.595543143505511. The primary-link bound is higher than both because the primary does not send the other validators' messages.
-
-At n = 4 the same four bounds are 16.512385940694116, 3001.7049684220638, 1000.5683228073545, and 1688.4590447374107. At n = 16 they are 16.279698239513433, 600.3409936844128, 54.57645397131025, and 105.52869029608817.
+At n = 4 the two bounds are 6753.836178949643 and 1688.4590447374107. At n = 16 they are 1688.4590447374107 and 105.52869029608817.
 
 ## 7. Second message count
 
@@ -161,9 +155,7 @@ The comparison with 0.75 is strict. A load of 0.75 stays on ML-DSA-87. Grey Harb
 
 ## 10. One decision at n = 4
 
-f = 1 and q = 3. PRE-PREPARE is 3 messages, PREPARE is 12, COMMIT is 12, and the round is 27 messages. The empty-block fallback is 12 messages. Aggregate ML-DSA-87 bytes are 27 · 4627 = 124929. Primary egress is 3 · 3 · 4627 = 41643. The path verifies 5 signatures and signs 3. Latency is 0.0605606 seconds. The four throughput figures at this size are the latency bound 16.512385940694116, the primary bound 3001.7049684220638, the aggregate bound 1000.5683228073545, and the N² bound 1688.4590447374107.
-
-At this size the latency bound is the smallest of the four. Propagation, not the signature bytes, is the limiting term. At n = 64 the order reverses for the shared link: the aggregate bound 3.3241472518516764 is below the latency bound 15.411027514848524, while the primary's own link, at 142.9383318296221, remains above the latency bound. Which bound governs a deployment is a question of whether the messages share a link.
+f = 1 and q = 3. PRE-PREPARE is 3 messages, PREPARE is 12, COMMIT is 12, and the round is 27 messages. The empty-block fallback is 12 messages. Aggregate ML-DSA-87 bytes are 27 · 4627 = 124929. The path verifies 5 signatures and signs 3. Latency is 0.0605606 seconds. The per-node bound is 6753.836178949643 decisions per second. The network bound is 1688.4590447374107 decisions per second.
 
 ## 11. Software
 
@@ -185,4 +177,4 @@ python3 benchmarks/run_benchmark.py
 
 python3 benchmarks/run_dummy.py
 
-Package version recorded in the result file: 0.2.4.
+Package version recorded in the result file: 0.2.5.

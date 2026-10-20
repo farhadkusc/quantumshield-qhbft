@@ -18,7 +18,7 @@ from qhbft.safety import exhaustive_n4  # noqa: E402
 def main() -> None:
     payload = {
         "package": "quantumshield-qhbft",
-        "version": "0.2.4",
+        "version": "0.2.5",
         "safety_n4": exhaustive_n4(),
         "cost_sources": load_costs()["sources"],
         "one_way_delay_ms": 20,

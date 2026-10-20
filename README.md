@@ -2,21 +2,23 @@
 
 Closed-form cost of Byzantine consensus once signatures are ML-DSA instead of ECDSA-P384.
 
-Author: **Md Farhad Kabir**. Package **0.2.4**. The research draft is [docs/PAPER.md](docs/PAPER.md). The same text is `docs/QuantumShield_Concept_Summary_v3.docx`. Both are generated from `benchmarks/results/evaluation.json`.
+Author: **Md Farhad Kabir**. Package **0.2.5**. The research draft is [docs/PAPER.md](docs/PAPER.md). The same text is `docs/QuantumShield_Concept_Summary_v3.docx`. Both are generated from `benchmarks/results/evaluation.json`.
 
 Signature lengths are FIPS 204 Table 2 (13 August 2024): ML-DSA-44 is 2,420 bytes, ML-DSA-65 is 3,309, ML-DSA-87 is 4,627. Sign and verify times are the medians published by the [PQShield NIST Signature Zoo](https://pqshield.github.io/nist-sigs-zoo) for an Intel Xeon Platinum 8488C on 22 September 2026 (1,000 iterations): ML-DSA-87 signs in 96.7 µs and verifies in 54.1 µs. Those times were not remeasured here. ECDSA-P384 is carried as a 96-byte signature only. No ECDSA timing from that host is cited, so the ECDSA rows have a byte count and a null critical path.
 
-## One decision, ML-DSA-87, 20 ms delay, 1 Gbps
+## Bandwidth, ML-DSA-87, 1 Gbps
 
-Bytes and seconds are not added. A latency bound is `1 / critical path`. A bandwidth bound is `125,000,000 / egress bytes`. The critical path is three hops, three signatures, and `1 + 2(q − 1)` verifications, using the PQShield medians of 96.7 µs to sign and 54.1 µs to verify.
+The two bandwidth readings are `B / (N · S)` per node and `B / (N² · S)` for the network. `B` is 125,000,000 bytes per second on a 1 Gbps link. `S` is 4,627 bytes.
 
-| n | Messages | Aggregate bytes | Quorum bytes | Latency | Latency bound | Primary egress bound | Aggregate bound | Quorum bound | N² bound |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 4 | 27 | 124,929 | 69,405 | 0.0606 s | 16.51 /s | 3,001.7 /s | 1,000.6 /s | 1,801.0 /s | 1,688.5 /s |
-| 16 | 495 | 2,290,365 | 1,068,837 | 0.0614 s | 16.28 /s | 600.3 /s | 54.58 /s | 117.0 /s | 105.53 /s |
-| 64 | 8,127 | 37,603,629 | 16,911,685 | 0.0649 s | 15.41 /s | 142.94 /s | 3.324 /s | 7.391 /s | 6.596 /s |
+| n | Per-node B/(N·S) | Network B/(N²·S) |
+| ---: | ---: | ---: |
+| 4 | 6,753.836179 /s | 1,688.459045 /s |
+| 16 | 1,688.459045 /s | 105.528690 /s |
+| 64 | 422.114761 /s | 6.595543 /s |
 
-The N² column is `B / (N² · S)` with `B = 1 Gbps` and `S = 4,627`. At n = 64 it is 6.596 decisions per second. The aggregate column uses the 8,127 messages actually sent and is 3.324 per second on one shared link. The primary column is the bound when each validator has its own 1 Gbps link: the primary sends `3(n − 1)` signatures. The quorum column restricts the broadcast to `q + 2q(q − 1)` messages.
+At n = 64 the per-node reading is 422.114761 decisions per second. That is `B / (N · S)`, about 420. The network reading is 6.595543 decisions per second. The per-node figure is N times the network figure.
+
+The critical path remains a time, not a third bandwidth reading. At n = 64 it is three hops, three signatures, and `1 + 2(q − 1)` verifications: 0.0648886 s, using the 20 ms delay and the PQShield medians of 96.7 µs to sign and 54.1 µs to verify.
 
 ## What is counted
 

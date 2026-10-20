@@ -1,6 +1,6 @@
 # Technical report
 
-**Version 0.2.3.** Author: Md Farhad Kabir.
+**Version 0.2.5.** Author: Md Farhad Kabir.
 
 ## Cost model
 
@@ -21,6 +21,10 @@ h \cdot d + (s_{\text{sign}} \cdot t_{\text{sign}} + s_{\text{verify}} \cdot t_{
 \]
 
 \(d = 20\) ms unless the caller changes it. \(h\) is 3 for the PBFT-shaped protocols and 2 for the HotStuff-shaped ones. \(t_{\text{sign}}\) and \(t_{\text{verify}}\) are the PQShield medians cited in `data/published_costs.json`. When those fields are null (ECDSA-P384), the critical path is null rather than filled in.
+
+## Bandwidth
+
+On a 1 Gbps link, B = 125000000 bytes per second. With signature length S the per-node bound is B / (N · S) and the network bound is B / (N² · S). For ML-DSA-87, S = 4627. At N = 64 those readings are 422.1147611843527 and 6.595543143505511 decisions per second. The per-node reading is about 420. It is N times the network reading.
 
 ## Why the quorum does not shorten the critical path
 

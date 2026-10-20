@@ -43,12 +43,18 @@ class ResearchTests(unittest.TestCase):
         rel = np.array([0.1, 0.2, 0.95, 0.99])
         self.assertIn(primary_id(rel, view=0), (2, 3))
 
-    def test_link_budget_keeps_units_apart(self):
+    def test_link_budget_uses_the_two_bandwidth_readings(self):
         row = link_budget(64, 4627, sign_seconds=96.7e-6, verify_seconds=54.1e-6)
+        per_node = 125_000_000 / (64 * 4627)
+        network = 125_000_000 / (64 * 64 * 4627)
         self.assertGreater(row["latency_seconds"], 0.06)
         self.assertLess(row["latency_seconds"], 0.08)
-        self.assertGreater(row["primary_bandwidth_bound_per_s"], row["aggregate_bandwidth_bound_per_s"])
-        self.assertGreater(row["quorum_bandwidth_bound_per_s"], row["aggregate_bandwidth_bound_per_s"])
+        self.assertAlmostEqual(row["per_node_bound_per_s"], per_node)
+        self.assertAlmostEqual(row["paper_n2_bound_per_s"], network)
+        self.assertAlmostEqual(row["per_node_bound_per_s"], 64 * row["paper_n2_bound_per_s"])
+        self.assertNotIn("primary_bandwidth_bound_per_s", row)
+        self.assertNotIn("aggregate_bandwidth_bound_per_s", row)
+        self.assertNotIn("quorum_bandwidth_bound_per_s", row)
         self.assertNotIn("byte_term", row)
         row = decision_cost("pbft", 4, "ECDSA-P384")
         self.assertIsNone(row["critical_path_ms"])
