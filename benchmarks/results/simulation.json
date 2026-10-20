@@ -1,0 +1,61 @@
+{
+  "disclaimer": "Throughput is the first-order bandwidth bound T(N) <= B / (fanout * N^2 * S) at B = 1 Gbps. It is not a measured transactions-per-second from a cluster.",
+  "safety_grid": [
+    {
+      "n": 4,
+      "f": 1,
+      "quorum_pairs": 6,
+      "non_intersecting_pairs": 0
+    }
+  ],
+  "configurations": [
+    {
+      "n": 4,
+      "f": 1,
+      "rounds": 30,
+      "decisions": 20,
+      "empty_blocks": 2,
+      "safety_violations": 0,
+      "unique_primaries": 1,
+      "mean_quorum": 3.0,
+      "adaptive_tps_bound": 3001.705,
+      "naive_mldsa87_tps_bound": 1688.459,
+      "ecdsa_tps_bound": 81380.208,
+      "signature_mix": {
+        "ML-DSA-87": 30
+      }
+    },
+    {
+      "n": 16,
+      "f": 5,
+      "rounds": 30,
+      "decisions": 11,
+      "empty_blocks": 2,
+      "safety_violations": 0,
+      "unique_primaries": 7,
+      "mean_quorum": 11.0,
+      "adaptive_tps_bound": 223.267,
+      "naive_mldsa87_tps_bound": 105.529,
+      "ecdsa_tps_bound": 5086.263,
+      "signature_mix": {
+        "ML-DSA-87": 30
+      }
+    },
+    {
+      "n": 64,
+      "f": 21,
+      "rounds": 30,
+      "decisions": 6,
+      "empty_blocks": 0,
+      "safety_violations": 0,
+      "unique_primaries": 30,
+      "mean_quorum": 43.0,
+      "adaptive_tps_bound": 14.611,
+      "naive_mldsa87_tps_bound": 6.596,
+      "ecdsa_tps_bound": 317.891,
+      "signature_mix": {
+        "ML-DSA-87": 30
+      }
+    }
+  ]
+}
