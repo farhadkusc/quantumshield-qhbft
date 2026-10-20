@@ -1,0 +1,227 @@
+{
+  "package": "quantumshield-qhbft",
+  "package_version": "0.2.3",
+  "profile": "smoke",
+  "host": "hds-ssx0maqdcfqj",
+  "ran_on_wulver": false,
+  "purpose": "Monte Carlo check of quorum intersection, plus the closed-form ML-DSA-87 cost grid.",
+  "not_a_measurement_of": "NJIT hardware, a cluster consensus run, NS-3, or IBM Quantum.",
+  "n_pairs_per_committee": 4000,
+  "workers": 2,
+  "elapsed_sec": 0.027,
+  "intersection": [
+    {
+      "n": 16,
+      "f": 5,
+      "quorum": 11,
+      "intersection_bound": 6,
+      "n_pairs": 4000,
+      "violations": 0,
+      "min_intersection": 6
+    },
+    {
+      "n": 64,
+      "f": 21,
+      "quorum": 43,
+      "intersection_bound": 22,
+      "n_pairs": 4000,
+      "violations": 0,
+      "min_intersection": 23
+    }
+  ],
+  "violations": 0,
+  "cost_grid": [
+    {
+      "protocol": "pbft",
+      "n": 16,
+      "one_way_ms": 5.0,
+      "bytes": 2294992,
+      "critical_path_ms": 16.426,
+      "quorum": 11
+    },
+    {
+      "protocol": "pbft",
+      "n": 16,
+      "one_way_ms": 20.0,
+      "bytes": 2294992,
+      "critical_path_ms": 61.426,
+      "quorum": 11
+    },
+    {
+      "protocol": "pbft",
+      "n": 16,
+      "one_way_ms": 40.0,
+      "bytes": 2294992,
+      "critical_path_ms": 121.426,
+      "quorum": 11
+    },
+    {
+      "protocol": "qh-quorum",
+      "n": 16,
+      "one_way_ms": 5.0,
+      "bytes": 1068837,
+      "critical_path_ms": 16.426,
+      "quorum": 11
+    },
+    {
+      "protocol": "qh-quorum",
+      "n": 16,
+      "one_way_ms": 20.0,
+      "bytes": 1068837,
+      "critical_path_ms": 61.426,
+      "quorum": 11
+    },
+    {
+      "protocol": "qh-quorum",
+      "n": 16,
+      "one_way_ms": 40.0,
+      "bytes": 1068837,
+      "critical_path_ms": 121.426,
+      "quorum": 11
+    },
+    {
+      "protocol": "hotstuff-linear",
+      "n": 16,
+      "one_way_ms": 5.0,
+      "bytes": 222096,
+      "critical_path_ms": 10.843,
+      "quorum": 11
+    },
+    {
+      "protocol": "hotstuff-linear",
+      "n": 16,
+      "one_way_ms": 20.0,
+      "bytes": 222096,
+      "critical_path_ms": 40.843,
+      "quorum": 11
+    },
+    {
+      "protocol": "hotstuff-linear",
+      "n": 16,
+      "one_way_ms": 40.0,
+      "bytes": 222096,
+      "critical_path_ms": 80.843,
+      "quorum": 11
+    },
+    {
+      "protocol": "hotstuff-raw-qc",
+      "n": 16,
+      "one_way_ms": 5.0,
+      "bytes": 962416,
+      "critical_path_ms": 10.843,
+      "quorum": 11
+    },
+    {
+      "protocol": "hotstuff-raw-qc",
+      "n": 16,
+      "one_way_ms": 20.0,
+      "bytes": 962416,
+      "critical_path_ms": 40.843,
+      "quorum": 11
+    },
+    {
+      "protocol": "hotstuff-raw-qc",
+      "n": 16,
+      "one_way_ms": 40.0,
+      "bytes": 962416,
+      "critical_path_ms": 80.843,
+      "quorum": 11
+    },
+    {
+      "protocol": "pbft",
+      "n": 64,
+      "one_way_ms": 5.0,
+      "bytes": 37608256,
+      "critical_path_ms": 19.889,
+      "quorum": 43
+    },
+    {
+      "protocol": "pbft",
+      "n": 64,
+      "one_way_ms": 20.0,
+      "bytes": 37608256,
+      "critical_path_ms": 64.889,
+      "quorum": 43
+    },
+    {
+      "protocol": "pbft",
+      "n": 64,
+      "one_way_ms": 40.0,
+      "bytes": 37608256,
+      "critical_path_ms": 124.889,
+      "quorum": 43
+    },
+    {
+      "protocol": "qh-quorum",
+      "n": 64,
+      "one_way_ms": 5.0,
+      "bytes": 16911685,
+      "critical_path_ms": 19.889,
+      "quorum": 43
+    },
+    {
+      "protocol": "qh-quorum",
+      "n": 64,
+      "one_way_ms": 20.0,
+      "bytes": 16911685,
+      "critical_path_ms": 64.889,
+      "quorum": 43
+    },
+    {
+      "protocol": "qh-quorum",
+      "n": 64,
+      "one_way_ms": 40.0,
+      "bytes": 16911685,
+      "critical_path_ms": 124.889,
+      "quorum": 43
+    },
+    {
+      "protocol": "hotstuff-linear",
+      "n": 64,
+      "one_way_ms": 5.0,
+      "bytes": 888384,
+      "critical_path_ms": 12.574,
+      "quorum": 43
+    },
+    {
+      "protocol": "hotstuff-linear",
+      "n": 64,
+      "one_way_ms": 20.0,
+      "bytes": 888384,
+      "critical_path_ms": 42.574,
+      "quorum": 43
+    },
+    {
+      "protocol": "hotstuff-linear",
+      "n": 64,
+      "one_way_ms": 40.0,
+      "bytes": 888384,
+      "critical_path_ms": 82.574,
+      "quorum": 43
+    },
+    {
+      "protocol": "hotstuff-raw-qc",
+      "n": 64,
+      "one_way_ms": 5.0,
+      "bytes": 13325760,
+      "critical_path_ms": 12.574,
+      "quorum": 43
+    },
+    {
+      "protocol": "hotstuff-raw-qc",
+      "n": 64,
+      "one_way_ms": 20.0,
+      "bytes": 13325760,
+      "critical_path_ms": 42.574,
+      "quorum": 43
+    },
+    {
+      "protocol": "hotstuff-raw-qc",
+      "n": 64,
+      "one_way_ms": 40.0,
+      "bytes": 13325760,
+      "critical_path_ms": 82.574,
+      "quorum": 43
+    }
+  ]
+}

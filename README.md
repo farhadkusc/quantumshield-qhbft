@@ -2,7 +2,7 @@
 
 Closed-form cost of Byzantine consensus once signatures are ML-DSA instead of ECDSA-P384.
 
-Author: **Md Farhad Kabir**. Package **0.2.2**.
+Author: **Md Farhad Kabir**. Package **0.2.3**.
 
 Signature lengths are FIPS 204 Table 2 (13 August 2024): ML-DSA-44 is 2,420 bytes, ML-DSA-65 is 3,309, ML-DSA-87 is 4,627. Sign and verify times are the medians published by the [PQShield NIST Signature Zoo](https://pqshield.github.io/nist-sigs-zoo) for an Intel Xeon Platinum 8488C on 22 September 2026 (1,000 iterations): ML-DSA-87 signs in 96.7 µs and verifies in 54.1 µs. Those times were not remeasured here. ECDSA-P384 is carried as a 96-byte signature only. No ECDSA timing from that host is cited, so the ECDSA rows have a byte count and a null critical path.
 
@@ -57,3 +57,7 @@ Grey Harbor sets `threat=HIGH` on the blue cell for the inject window. Every row
 ## What this is not
 
 Not an NS-3 run, not a Docker cluster, and not an IBM Quantum experiment. IBM's quantum stack is a circuit and runtime platform; this package is a post-quantum **signature cost** model for consensus, which is the question in the concept paper. The milliseconds move if the one-way delay or the cited microbenchmark changes. Both are named in `data/published_costs.json`.
+
+## NJIT Wulver
+
+`lab/njit/` samples 200,000 quorum pairs at four committee sizes, including n = 4096, and writes the ML-DSA-87 cost grid. Submit with `sbatch lab/njit/wulver.sbatch`. Instructions are in [lab/njit/README.md](lab/njit/README.md). The smoke file is not a Wulver measurement.
