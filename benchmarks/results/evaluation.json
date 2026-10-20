@@ -1,6 +1,6 @@
 {
   "package": "quantumshield-qhbft",
-  "version": "0.2.0",
+  "version": "0.2.3",
   "safety_n4": {
     "n": 4,
     "f": 1,
@@ -22,6 +22,90 @@
     }
   ],
   "one_way_delay_ms": 20,
+  "honest_rounds": [
+    {
+      "n": 4,
+      "f": 1,
+      "quorum": 3,
+      "preprepare": 3,
+      "prepare": 12,
+      "commit": 12,
+      "messages": 27,
+      "decided": true
+    },
+    {
+      "n": 16,
+      "f": 5,
+      "quorum": 11,
+      "preprepare": 15,
+      "prepare": 240,
+      "commit": 240,
+      "messages": 495,
+      "decided": true
+    },
+    {
+      "n": 64,
+      "f": 21,
+      "quorum": 43,
+      "preprepare": 63,
+      "prepare": 4032,
+      "commit": 4032,
+      "messages": 8127,
+      "decided": true
+    }
+  ],
+  "empty_block": [
+    {
+      "n": 4,
+      "f": 1,
+      "quorum": 3,
+      "messages": 12,
+      "advanced": true
+    },
+    {
+      "n": 16,
+      "f": 5,
+      "quorum": 11,
+      "messages": 240,
+      "advanced": true
+    },
+    {
+      "n": 64,
+      "f": 21,
+      "quorum": 43,
+      "messages": 4032,
+      "advanced": true
+    }
+  ],
+  "complexity": [
+    {
+      "n": 4,
+      "signature_bytes": 4627,
+      "n_squared_messages": 16,
+      "byte_term": 74032,
+      "verify_term_seconds": 0.0008656,
+      "delay_seconds": 0.02,
+      "throughput_bound_per_s": 1688.4590447374107
+    },
+    {
+      "n": 16,
+      "signature_bytes": 4627,
+      "n_squared_messages": 256,
+      "byte_term": 1184512,
+      "verify_term_seconds": 0.0138496,
+      "delay_seconds": 0.02,
+      "throughput_bound_per_s": 105.52869029608817
+    },
+    {
+      "n": 64,
+      "signature_bytes": 4627,
+      "n_squared_messages": 4096,
+      "byte_term": 18952192,
+      "verify_term_seconds": 0.2215936,
+      "delay_seconds": 0.02,
+      "throughput_bound_per_s": 6.595543143505511
+    }
+  ],
   "rows": [
     {
       "protocol": "pbft",

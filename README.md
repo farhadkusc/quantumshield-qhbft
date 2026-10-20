@@ -6,6 +6,12 @@ Author: **Md Farhad Kabir**. Package **0.2.3**.
 
 Signature lengths are FIPS 204 Table 2 (13 August 2024): ML-DSA-44 is 2,420 bytes, ML-DSA-65 is 3,309, ML-DSA-87 is 4,627. Sign and verify times are the medians published by the [PQShield NIST Signature Zoo](https://pqshield.github.io/nist-sigs-zoo) for an Intel Xeon Platinum 8488C on 22 September 2026 (1,000 iterations): ML-DSA-87 signs in 96.7 µs and verifies in 54.1 µs. Those times were not remeasured here. ECDSA-P384 is carried as a 96-byte signature only. No ECDSA timing from that host is cited, so the ECDSA rows have a byte count and a null critical path.
 
+## Protocol counts
+
+An honest round follows the concept paper: one PRE-PREPARE, then every validator broadcasts PREPARE, then every validator broadcasts COMMIT. At n = 64 that is 8,127 messages. The empty-block fallback is n(n−1) PREPARE messages, 4,032 at n = 64.
+
+Section 7.3 of the concept paper bounds throughput by `B / (N² · S)` with B = 1 Gbps. With S = 4,627 the bound is 6.5955 decisions per second at N = 64, 105.53 at N = 16, and 1,688.46 at N = 4. The byte term `N² · S` at N = 64 is 18,952,192.
+
 ## What is counted
 
 Normal case, after GST, no faults on the critical path. One-way delay is a parameter, default 20 ms.
