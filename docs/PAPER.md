@@ -57,6 +57,8 @@ The first term is PRE-PREPARE. The two remaining terms are PREPARE and COMMIT. T
 
 Check for n = 64. PRE-PREPARE is 63. PREPARE is 64 · 63 = 4032. COMMIT is 4032. The sum is 63 + 4032 + 4032 = 8127. The empty-block count is 64 · 63 = 4032.
 
+The specification’s first-order model counts N² signatures per decision; the exact PBFT pattern sends (n − 1)(2n + 1) = 8,127 messages, about twice N².
+
 ## 5. Critical path
 
 `link_budget` places three signatures and 1 + 2(q − 1) verifications on the path, plus three one-way delays. For ML-DSA-87,
