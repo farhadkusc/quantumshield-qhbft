@@ -24,8 +24,7 @@ def main() -> None:
         "rows": sweep(),
         "disclaimer": (
             "Bytes are message-pattern times FIPS signature length. "
-            "Milliseconds add published PQShield verify/sign medians on the critical path. "
-            "Not a cluster, NS-3, or IBM Quantum measurement."
+            "Milliseconds add published PQShield verify/sign medians on the critical path."
         ),
     }
     out = ROOT / "benchmarks" / "results" / "evaluation.json"

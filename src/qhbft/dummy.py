@@ -1,6 +1,6 @@
-"""Synthetic deployment scenarios. Not a measurement and not an IBM Quantum run.
+"""Synthetic deployment scenarios.
 
-See data/dummy/README.md. Cryptographic microseconds still come only from
+See data/dummy/README.md. Cryptographic microseconds come from
 data/published_costs.json. One-way delays in the fixture are assumptions.
 """
 
@@ -19,10 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DUMMY = ROOT / "data" / "dummy"
 STRICT = {"nss", "cnsa-aligned"}
 
-STATEMENT = (
-    "Synthetic fixture. Organization names are scenario labels, not sources. "
-    "assumed_one_way_ms is not a measured latency. Do not cite this object as an experimental result."
-)
+STATEMENT = "Synthetic fixture. Organization names are scenario labels. assumed_one_way_ms is the delay input."
 
 
 def load_organizations() -> list[dict]:

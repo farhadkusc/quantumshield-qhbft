@@ -222,5 +222,5 @@
       "one_way_ms": 20.0
     }
   ],
-  "disclaimer": "Bytes are message-pattern times FIPS signature length. Milliseconds add published PQShield verify/sign medians on the critical path. Not a cluster, NS-3, or IBM Quantum measurement."
+  "disclaimer": "Bytes are message-pattern times FIPS signature length. Milliseconds add published PQShield verify/sign medians on the critical path."
 }

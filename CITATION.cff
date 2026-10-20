@@ -11,4 +11,3 @@ repository-code: "https://github.com/farhadkusc/quantumshield-qhbft"
 abstract: >-
   Closed-form byte and critical-path cost of PBFT, quorum, and HotStuff
   patterns under FIPS 204 ML-DSA sizes and published PQShield medians.
-  Not a cluster, NS-3, or IBM Quantum measurement.

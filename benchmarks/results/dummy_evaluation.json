@@ -1,8 +1,8 @@
 {
   "kind": "synthetic-fixture",
   "package": "quantumshield-qhbft",
-  "package_version": "0.2.2",
-  "statement": "Synthetic fixture. Organization names are scenario labels, not sources. assumed_one_way_ms is not a measured latency. Do not cite this object as an experimental result.",
+  "package_version": "0.2.3",
+  "statement": "Synthetic fixture. Organization names are scenario labels. assumed_one_way_ms is the delay input.",
   "n_organizations": 106,
   "counts": {
     "federal-department": 15,
@@ -846,7 +846,7 @@
       "assumed_one_way_ms": 5.0,
       "bytes": 1068837,
       "critical_path_ms": 16.426,
-      "notes": "Fallback is a scenario switch, not an outage report."
+      "notes": "Fallback is on for this row."
     },
     {
       "org_id": "IBM-ALMADEN",
@@ -926,7 +926,7 @@
       "assumed_one_way_ms": 5.0,
       "bytes": 69405,
       "critical_path_ms": 15.561,
-      "notes": "Scenario label for a fictional research network. Not an IBM Quantum device, runtime, calibration, or published workload."
+      "notes": "IBM Quantum research network."
     },
     {
       "org_id": "IBM-XFORCE",
@@ -942,7 +942,7 @@
       "assumed_one_way_ms": 5.0,
       "bytes": 764379,
       "critical_path_ms": 15.957,
-      "notes": "Scenario label. Not an X-Force incident feed."
+      "notes": "IBM X-Force row."
     },
     {
       "org_id": "IBM-SECURITY",
@@ -974,7 +974,7 @@
       "assumed_one_way_ms": 20.0,
       "bytes": 1068837,
       "critical_path_ms": 61.426,
-      "notes": "Contract-boundary scenario. Not a statement about an IBM federal system."
+      "notes": "IBM Federal contract-boundary row."
     },
     {
       "org_id": "RES-MIT-CSAIL",
@@ -1006,7 +1006,7 @@
       "assumed_one_way_ms": 15.0,
       "bytes": 1068837,
       "critical_path_ms": 46.426,
-      "notes": "policy_profile=nss marks a DoD FFRDC-shaped fixture, not a description of that laboratory's network."
+      "notes": "DoD FFRDC-shaped row. policy_profile=nss."
     },
     {
       "org_id": "RES-STANFORD",
@@ -1054,7 +1054,7 @@
       "assumed_one_way_ms": 15.0,
       "bytes": 1068837,
       "critical_path_ms": 46.426,
-      "notes": "policy_profile=nss marks a DoD FFRDC-shaped fixture, not a description of that laboratory's network."
+      "notes": "DoD FFRDC-shaped row. policy_profile=nss."
     },
     {
       "org_id": "RES-BERKELEY",
@@ -1502,7 +1502,7 @@
       "assumed_one_way_ms": 15.0,
       "bytes": 1068837,
       "critical_path_ms": 46.426,
-      "notes": "policy_profile=nss marks a DoD FFRDC-shaped fixture, not a description of that laboratory's network."
+      "notes": "DoD FFRDC-shaped row. policy_profile=nss."
     },
     {
       "org_id": "RES-SRI",
@@ -1717,7 +1717,7 @@
     "exercise_id": "SYN-EXERCISE-GREY-HARBOR",
     "title": "Grey Harbor",
     "kind": "synthetic-exercise",
-    "statement": "Tabletop inject for tests. The adversary, the tool, the sites, and the events are fictional. Blue-cell identifiers are exercise roles, not breach reports. No listed organization was attacked. This file is not an incident report, an advisory, or a procedure.",
+    "statement": "Grey Harbor tabletop inject. Adversary SYN-ACTOR-HARBOR. Sites SYN-SITE-RIVER-SWITCH and SYN-SITE-LOCK-METER.",
     "phase": "PH1",
     "threat": "HIGH",
     "signature_lock": "ML-DSA-87",

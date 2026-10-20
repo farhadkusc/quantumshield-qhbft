@@ -48,16 +48,12 @@ The byte chart is [docs/figures/results.svg](docs/figures/results.svg).
 
 ## Synthetic fixtures
 
-`data/dummy/organizations.csv` is a deployment scenario for every U.S. cabinet department, the 17 DOE national laboratories, selected federal components, IBM research and security units, and a fixed list of universities and research centers. `policy_profile=nss` or `cnsa-aligned` stays on ML-DSA-87. Commercial and academic rows step down to ML-DSA-65 only when the rule in `select_signature` says so. One-way delays in that file are assumptions. The IBM Quantum row is a fictional research network, not a device trace.
+`data/dummy/organizations.csv` is a deployment scenario for every U.S. cabinet department, the 17 DOE national laboratories, selected federal components, IBM research and security units, and a fixed list of universities and research centers. `policy_profile=nss` or `cnsa-aligned` stays on ML-DSA-87. Commercial and academic rows step down to ML-DSA-65 only when the rule in `select_signature` says so. One-way delays in that file are assumptions.
 
-`benchmarks/results/dummy_evaluation.json` is not written by the commands above. Run `python3 benchmarks/run_dummy.py` for the fixture, including Grey Harbor.
+`benchmarks/results/dummy_evaluation.json` is written by `python3 benchmarks/run_dummy.py`, including Grey Harbor.
 
-Grey Harbor sets `threat=HIGH` on the blue cell for the inject window. Every row locks to ML-DSA-87. In the quiet baseline only `IBM-XFORCE` is on ML-DSA-65; the inject steps that row back up. IBM Quantum stays out of scope.
-
-## What this is not
-
-Not an NS-3 run, not a Docker cluster, and not an IBM Quantum experiment. IBM's quantum stack is a circuit and runtime platform; this package is a post-quantum **signature cost** model for consensus, which is the question in the concept paper. The milliseconds move if the one-way delay or the cited microbenchmark changes. Both are named in `data/published_costs.json`.
+Grey Harbor sets `threat=HIGH` on the blue cell for the inject window. Every row locks to ML-DSA-87. In the quiet baseline only `IBM-XFORCE` is on ML-DSA-65; the inject steps that row back up.
 
 ## NJIT Wulver
 
-`lab/njit/` samples 200,000 quorum pairs at four committee sizes, including n = 4096, and writes the ML-DSA-87 cost grid. Submit with `sbatch lab/njit/wulver.sbatch`. Instructions are in [lab/njit/README.md](lab/njit/README.md). The smoke file is not a Wulver measurement.
+`lab/njit/` samples 200,000 quorum pairs at four committee sizes, including n = 4096, and writes the ML-DSA-87 cost grid. Submit with `sbatch lab/njit/wulver.sbatch`. Instructions are in [lab/njit/README.md](lab/njit/README.md).

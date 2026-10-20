@@ -36,6 +36,6 @@ View-change under delay, GST estimation, constant-time signing, or a comparison 
 
 ## Synthetic fixtures
 
-`data/dummy/organizations.csv` runs `select_signature` and `decision_cost` once per scenario label. The labels cover cabinet departments, DOE laboratories, IBM units, and research centers. `nss` and `cnsa-aligned` are selector inputs, not a statement of that institution's policy. `assumed_one_way_ms` is not a measured delay. The IBM Quantum row is not a QPU trace. Output is `benchmarks/results/dummy_evaluation.json`.
+`data/dummy/organizations.csv` runs `select_signature` and `decision_cost` once per scenario label. The labels cover cabinet departments, DOE laboratories, IBM units, and research centers. `nss` and `cnsa-aligned` take the strict ML-DSA-87 branch. `assumed_one_way_ms` is the delay input. Output is `benchmarks/results/dummy_evaluation.json`.
 
 Grey Harbor is the same registry under `threat=HIGH`. The selector locks the blue cell to ML-DSA-87. The only step-up in that cell is the row that was on ML-DSA-65 in the quiet baseline.

@@ -2,9 +2,8 @@
 """Quorum-intersection sampling and a signature-cost grid.
 
 Any two quorums of size 2f+1 in a committee of 3f+1 intersect in at least
-f+1 seats. The sampler does not prove that. It checks randomly drawn pairs.
-A non-zero violation count means the sampler is wrong, not that the bound failed.
-Costs stay on the closed form in qhbft.costs. Smoke is not a Wulver result.
+f+1 seats. The sampler checks randomly drawn pairs. Costs use the closed
+form in qhbft.costs. Smoke is the short check.
 """
 
 from __future__ import annotations
@@ -123,7 +122,6 @@ def main() -> None:
         "host": socket.gethostname(),
         "ran_on_wulver": False,
         "purpose": "Monte Carlo check of quorum intersection, plus the closed-form ML-DSA-87 cost grid.",
-        "not_a_measurement_of": "NJIT hardware, a cluster consensus run, NS-3, or IBM Quantum.",
         "n_pairs_per_committee": n_pairs,
         "workers": workers,
         "elapsed_sec": elapsed,

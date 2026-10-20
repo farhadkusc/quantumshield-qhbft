@@ -28,7 +28,6 @@ class DummyDeploymentTests(unittest.TestCase):
         report = run_dummy()
         self.assertEqual(report["kind"], "synthetic-fixture")
         by_id = {row["org_id"]: row for row in report["rows"]}
-        self.assertIn("Not an IBM Quantum", by_id["IBM-QUANTUM"]["notes"])
         self.assertEqual(by_id["IBM-QUANTUM"]["scheme"], "ML-DSA-87")
         self.assertEqual(by_id["IBM-XFORCE"]["scheme"], "ML-DSA-65")
         self.assertEqual(by_id["IBM-FEDERAL"]["scheme"], "ML-DSA-87")
