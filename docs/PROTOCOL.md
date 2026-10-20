@@ -1,16 +1,16 @@
-# Protocol sketch
+# Who speaks
 
 ```mermaid
 flowchart TD
-  R[Reliability scores] --> T[k trust tiers]
-  T --> Q[Quorum of 2f+1, high tiers first]
-  T --> P[Primary rotates inside top tier]
-  P --> PRE[PRE-PREPARE with ML-DSA]
-  PRE --> PR[PREPARE]
-  PR --> C{2f+1 honest commits?}
-  C -->|yes| D[Decide block]
-  C -->|primary fault| E[Empty-block fallback and next view]
-  S[Signature policy] -.-> PRE
+  R[Reliability in 0 to 1] --> T[Three tiers]
+  T --> Q[Quorum of 2f+1 from the top tier down]
+  T --> P[Primary rotates inside the top tier]
+  Q --> B[Three-phase exchange among the quorum]
+  P --> B
+  B --> S{NSS, high threat, or fallback?}
+  S -->|yes| A[ML-DSA-87]
+  S -->|no, and load above 0.75| C[ML-DSA-65]
+  S -->|no| A
 ```
 
-Normal case is the classical three phases. View change is replaced by the empty-block vote described in the concept paper, which keeps the simulated message count at \(O(q^2)\) for quorum size \(q\).
+Empty-block fallback is a policy input to the signature rule. It is not a simulated packet trace.

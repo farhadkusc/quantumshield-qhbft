@@ -1,31 +1,35 @@
-# QH-BFT technical report
+# Technical report
 
-**Package version:** 0.1.0  
-**Author:** Md Farhad Kabir
+**Version 0.2.0.** Author: Md Farhad Kabir.
 
-## Model
+## Cost model
 
-- Partial synchrony is assumed, not simulated. The round loop does not model GST or packet delay.
-- \(n = 3f+1\). Byzantine seats are the \(f\) lowest reliability draws and cannot sit in the top tier.
-- Tiers: \(T(i) = \lfloor R(i) \cdot k \rfloor\) with \(k = 3\).
-- Quorum: sample from the top tier downward until \(2f+1\) validators are seated.
-- Primary: round-robin inside the top tier.
-- Empty-block fallback: a Byzantine or timed-out primary advances the view without an \(O(n^3)\) view-change exchange. The simulator counts that path; it does not exchange the messages.
+Let \(S\) be the signature length and \(V\) the published verify time.
 
-## Safety check that is actually executed
+PBFT normal-case messages: \(n + 2n(n-1)\).
 
-For \(n=4, f=1\), every pair of 3-subsets intersects. The predicate used is
+QH-BFT with a speaking quorum \(q=2f+1\): \(q + 2q(q-1)\).
+
+HotStuff with an aggregated quorum certificate: \(3n\) signatures (proposal, vote, certificate).
+
+HotStuff whose certificate is the raw list of \(q\) ML-DSA signatures: \(2n\) individual signatures plus \(n \cdot q \cdot S\) bytes of certificate.
+
+Critical path, in milliseconds:
 
 \[
-|A \cap B| \ge |A| + |B| - n
+h \cdot d + (s_{\text{sign}} \cdot t_{\text{sign}} + s_{\text{verify}} \cdot t_{\text{verify}}) / 1000
 \]
 
-which is the pigeonhole lower bound and is tight. The \(n=16\) and \(n=64\) runs assert the same predicate against successive committed quorums and record `safety_violations`.
+\(d = 20\) ms unless the caller changes it. \(h\) is 3 for the PBFT-shaped protocols and 2 for the HotStuff-shaped ones. \(t_{\text{sign}}\) and \(t_{\text{verify}}\) are the PQShield medians cited in `data/published_costs.json`. When those fields are null (ECDSA-P384), the critical path is null rather than filled in.
 
-## What is not in this package
+## Why the quorum does not shorten the critical path
 
-Full PBFT/HotStuff implementations, constant-time ML-DSA, NS-3, Kubernetes, or CPU profiles. Those remain the Phase-2 testbed in the concept paper. Cryptographic verification is a cost coefficient, not a call into liboqs.
+At \(n=64\), \(f=21\) and \(q=43\). A replica on the PBFT path verifies \(1+2(q-1)\) signatures either way. The byte count falls because silent validators do not transmit. Latency on the critical path falls only if the number of verifies on that path falls, which is what the linear patterns do.
 
-## Reproduce
+## Policy
 
-`python3 benchmarks/run_benchmark.py`
+`select_signature` is the rule from the concept paper, with the safety side pinned down: fallback, NSS, and high threat stay on ML-DSA-87. There is no silent downgrade.
+
+## Not shown
+
+View-change under delay, GST estimation, constant-time signing, or a comparison against liboqs on this machine. Those need a benchmark host. The formulas are in `src/qhbft/costs.py` so a later host-specific timing file can replace the PQShield medians without touching the message accounting.

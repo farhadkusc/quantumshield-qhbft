@@ -1,13 +1,14 @@
 cff-version: 1.2.0
-title: "QH-BFT QuantumShield prototype"
-message: "If you use this prototype, please cite it."
+title: "QH-BFT QuantumShield"
+message: "If you use this software, please cite it."
 type: software
 authors:
   - family-names: Kabir
     given-names: Md Farhad
-version: 0.1.0
-date-released: 2026-10-19
+version: 0.2.0
+date-released: 2026-10-20
 repository-code: "https://github.com/farhadkusc/quantumshield-qhbft"
 abstract: >-
-  Reference prototype of a trust-tiered post-quantum BFT consensus loop
-  with adaptive ML-DSA parameter selection. Bandwidth bounds, not cluster results.
+  Closed-form byte and critical-path cost of PBFT, quorum, and HotStuff
+  patterns under FIPS 204 ML-DSA sizes and published PQShield medians.
+  Not a cluster, NS-3, or IBM Quantum measurement.

@@ -1,0 +1,226 @@
+{
+  "package": "quantumshield-qhbft",
+  "version": "0.2.0",
+  "safety_n4": {
+    "n": 4,
+    "f": 1,
+    "pairs": 6,
+    "non_intersecting": 0
+  },
+  "cost_sources": [
+    {
+      "id": "fips204",
+      "title": "FIPS 204, Module-Lattice-Based Digital Signature Standard",
+      "url": "https://doi.org/10.6028/NIST.FIPS.204",
+      "date": "2024-08-13"
+    },
+    {
+      "id": "pqshield-zoo",
+      "title": "PQShield NIST PQC Signature Zoo",
+      "url": "https://pqshield.github.io/nist-sigs-zoo",
+      "date": "2026-09-22"
+    }
+  ],
+  "one_way_delay_ms": 20,
+  "rows": [
+    {
+      "protocol": "pbft",
+      "n": 4,
+      "quorum": 3,
+      "scheme": "ECDSA-P384",
+      "messages": 28,
+      "bytes": 2688,
+      "critical_path_ms": null,
+      "crypto_critical_path_ms": null,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "pbft",
+      "n": 4,
+      "quorum": 3,
+      "scheme": "ML-DSA-87",
+      "messages": 28,
+      "bytes": 129556,
+      "critical_path_ms": 60.561,
+      "crypto_critical_path_ms": 0.561,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "qh-quorum",
+      "n": 4,
+      "quorum": 3,
+      "scheme": "ML-DSA-87",
+      "messages": 15,
+      "bytes": 69405,
+      "critical_path_ms": 60.561,
+      "crypto_critical_path_ms": 0.561,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "qh-quorum",
+      "n": 4,
+      "quorum": 3,
+      "scheme": "ML-DSA-65",
+      "messages": 15,
+      "bytes": 49635,
+      "critical_path_ms": 60.402,
+      "crypto_critical_path_ms": 0.402,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "hotstuff-linear",
+      "n": 4,
+      "quorum": 3,
+      "scheme": "ML-DSA-87",
+      "messages": 12,
+      "bytes": 55524,
+      "critical_path_ms": 40.41,
+      "crypto_critical_path_ms": 0.41,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "hotstuff-raw-qc",
+      "n": 4,
+      "quorum": 3,
+      "scheme": "ML-DSA-87",
+      "messages": 8,
+      "bytes": 92540,
+      "critical_path_ms": 40.41,
+      "crypto_critical_path_ms": 0.41,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "pbft",
+      "n": 16,
+      "quorum": 11,
+      "scheme": "ECDSA-P384",
+      "messages": 496,
+      "bytes": 47616,
+      "critical_path_ms": null,
+      "crypto_critical_path_ms": null,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "pbft",
+      "n": 16,
+      "quorum": 11,
+      "scheme": "ML-DSA-87",
+      "messages": 496,
+      "bytes": 2294992,
+      "critical_path_ms": 61.426,
+      "crypto_critical_path_ms": 1.426,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "qh-quorum",
+      "n": 16,
+      "quorum": 11,
+      "scheme": "ML-DSA-87",
+      "messages": 231,
+      "bytes": 1068837,
+      "critical_path_ms": 61.426,
+      "crypto_critical_path_ms": 1.426,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "qh-quorum",
+      "n": 16,
+      "quorum": 11,
+      "scheme": "ML-DSA-65",
+      "messages": 231,
+      "bytes": 764379,
+      "critical_path_ms": 60.957,
+      "crypto_critical_path_ms": 0.957,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "hotstuff-linear",
+      "n": 16,
+      "quorum": 11,
+      "scheme": "ML-DSA-87",
+      "messages": 48,
+      "bytes": 222096,
+      "critical_path_ms": 40.843,
+      "crypto_critical_path_ms": 0.843,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "hotstuff-raw-qc",
+      "n": 16,
+      "quorum": 11,
+      "scheme": "ML-DSA-87",
+      "messages": 32,
+      "bytes": 962416,
+      "critical_path_ms": 40.843,
+      "crypto_critical_path_ms": 0.843,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "pbft",
+      "n": 64,
+      "quorum": 43,
+      "scheme": "ECDSA-P384",
+      "messages": 8128,
+      "bytes": 780288,
+      "critical_path_ms": null,
+      "crypto_critical_path_ms": null,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "pbft",
+      "n": 64,
+      "quorum": 43,
+      "scheme": "ML-DSA-87",
+      "messages": 8128,
+      "bytes": 37608256,
+      "critical_path_ms": 64.889,
+      "crypto_critical_path_ms": 4.889,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "qh-quorum",
+      "n": 64,
+      "quorum": 43,
+      "scheme": "ML-DSA-87",
+      "messages": 3655,
+      "bytes": 16911685,
+      "critical_path_ms": 64.889,
+      "crypto_critical_path_ms": 4.889,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "qh-quorum",
+      "n": 64,
+      "quorum": 43,
+      "scheme": "ML-DSA-65",
+      "messages": 3655,
+      "bytes": 12094395,
+      "critical_path_ms": 63.178,
+      "crypto_critical_path_ms": 3.178,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "hotstuff-linear",
+      "n": 64,
+      "quorum": 43,
+      "scheme": "ML-DSA-87",
+      "messages": 192,
+      "bytes": 888384,
+      "critical_path_ms": 42.574,
+      "crypto_critical_path_ms": 2.574,
+      "one_way_ms": 20.0
+    },
+    {
+      "protocol": "hotstuff-raw-qc",
+      "n": 64,
+      "quorum": 43,
+      "scheme": "ML-DSA-87",
+      "messages": 128,
+      "bytes": 13325760,
+      "critical_path_ms": 42.574,
+      "crypto_critical_path_ms": 2.574,
+      "one_way_ms": 20.0
+    }
+  ],
+  "disclaimer": "Bytes are message-pattern times FIPS signature length. Milliseconds add published PQShield verify/sign medians on the critical path. Not a cluster, NS-3, or IBM Quantum measurement."
+}

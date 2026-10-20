@@ -1,0 +1,23 @@
+{
+  "note": "Byte lengths are the fixed sizes in FIPS 204 Table 2 (August 13, 2024). Microseconds are medians published by the PQShield NIST Signature Zoo on an Intel Xeon Platinum 8488C, benchmark dated 22 September 2026, median of 1000 iterations. They are not measurements taken in this repository. ECDSA-P384 length is the standard 96-byte signature used in the concept paper; no same-host ECDSA timing is cited, so CPU comparisons are among ML-DSA parameter sets only.",
+  "sources": [
+    {
+      "id": "fips204",
+      "title": "FIPS 204, Module-Lattice-Based Digital Signature Standard",
+      "url": "https://doi.org/10.6028/NIST.FIPS.204",
+      "date": "2024-08-13"
+    },
+    {
+      "id": "pqshield-zoo",
+      "title": "PQShield NIST PQC Signature Zoo",
+      "url": "https://pqshield.github.io/nist-sigs-zoo",
+      "date": "2026-09-22"
+    }
+  ],
+  "schemes": {
+    "ML-DSA-44": {"public_key_bytes": 1312, "signature_bytes": 2420, "sign_us": 46.7, "verify_us": 21.6, "nist_category": 2},
+    "ML-DSA-65": {"public_key_bytes": 1952, "signature_bytes": 3309, "sign_us": 76.1, "verify_us": 34.7, "nist_category": 3},
+    "ML-DSA-87": {"public_key_bytes": 2592, "signature_bytes": 4627, "sign_us": 96.7, "verify_us": 54.1, "nist_category": 5},
+    "ECDSA-P384": {"public_key_bytes": 49, "signature_bytes": 96, "sign_us": null, "verify_us": null, "nist_category": null}
+  }
+}

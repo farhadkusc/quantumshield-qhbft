@@ -4,36 +4,48 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from qhbft.protocol import (
-    combinatorial_safety_grid,
-    quorum_intersect,
-    select_signature,
-    simulate,
-)
+import numpy as np
+
+from qhbft.costs import decision_cost, quorum
+from qhbft.protocol import primary_id, quorum_ids, select_signature
+from qhbft.safety import exhaustive_n4, intersects_honestly
 
 
-class ProtocolTests(unittest.TestCase):
-    def test_quorums_of_2f_plus_1_intersect(self):
-        grid = combinatorial_safety_grid()
-        self.assertEqual(grid[0]["non_intersecting_pairs"], 0)
-        self.assertTrue(quorum_intersect({0, 1, 2}, {1, 2, 3}, n=4, f=1))
+class ResearchTests(unittest.TestCase):
+    def test_n4_quorums_all_intersect_in_an_honest_seat(self):
+        grid = exhaustive_n4()
+        self.assertEqual(grid["non_intersecting"], 0)
+        self.assertTrue(intersects_honestly({0, 1, 2}, {0, 2, 3}, 4))
 
-    def test_signature_policy(self):
+    def test_signature_policy_matches_the_safety_rule(self):
         self.assertEqual(select_signature(0.99, "LOW", nss=False, in_fallback=False), "ML-DSA-65")
         self.assertEqual(select_signature(0.99, "LOW", nss=True, in_fallback=False), "ML-DSA-87")
-        self.assertEqual(select_signature(0.1, "LOW", nss=False, in_fallback=True), "ML-DSA-87")
-        self.assertEqual(select_signature(0.1, "HIGH", nss=False, in_fallback=False), "ML-DSA-87")
+        self.assertEqual(select_signature(0.2, "LOW", nss=False, in_fallback=True), "ML-DSA-87")
+        self.assertEqual(select_signature(0.2, "HIGH", nss=False, in_fallback=False), "ML-DSA-87")
 
-    def test_simulation_respects_n_equals_3f_plus_1(self):
-        report, rounds = simulate(n=16, rounds=12, seed=2, nss=False)
-        self.assertEqual(report.f, 5)
-        self.assertEqual(report.safety_violations, 0)
-        self.assertGreater(report.decisions, 0)
-        self.assertTrue(all(len(r.quorum) == 2 * 5 + 1 for r in rounds))
+    def test_quorum_size_and_published_sizes(self):
+        rng = np.random.default_rng(1)
+        rel = rng.uniform(0.2, 1.0, size=16)
+        self.assertEqual(len(quorum_ids(rel, n_faulty=5, rng=rng)), 11)
+        row = decision_cost("pbft", 4, "ML-DSA-87")
+        self.assertEqual(row["quorum"], quorum(4))
+        # FIPS 204 Table 2: ML-DSA-87 signatures are 4627 bytes.
+        self.assertEqual(row["bytes"] % 4627, 0)
+        naive = decision_cost("pbft", 64, "ML-DSA-87")
+        tiered = decision_cost("qh-quorum", 64, "ML-DSA-87")
+        self.assertLess(tiered["bytes"], naive["bytes"])
+        raw = decision_cost("hotstuff-raw-qc", 64, "ML-DSA-87")
+        ideal = decision_cost("hotstuff-linear", 64, "ML-DSA-87")
+        self.assertGreater(raw["bytes"], ideal["bytes"])
 
-    def test_rejects_bad_n(self):
-        with self.assertRaises(ValueError):
-            simulate(n=5)
+    def test_primary_stays_in_the_top_tier(self):
+        rel = np.array([0.1, 0.2, 0.95, 0.99])
+        self.assertIn(primary_id(rel, view=0), (2, 3))
+
+    def test_ecdsa_row_has_no_invented_cpu_time(self):
+        row = decision_cost("pbft", 4, "ECDSA-P384")
+        self.assertIsNone(row["critical_path_ms"])
+        self.assertEqual(row["bytes"] % 96, 0)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sweep QH-BFT at N=4, 16, 64 and write the analytical + simulation report."""
+"""Write the closed-form cost table parameterized by published ML-DSA timings."""
 
 from __future__ import annotations
 
@@ -10,46 +10,35 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from qhbft.protocol import combinatorial_safety_grid, sweep  # noqa: E402
+from qhbft.costs import load_costs, sweep  # noqa: E402
+from qhbft.safety import exhaustive_n4  # noqa: E402
 
 
 def main() -> None:
-    reports = sweep()
-    safety = combinatorial_safety_grid()
     payload = {
+        "package": "quantumshield-qhbft",
+        "version": "0.2.0",
+        "safety_n4": exhaustive_n4(),
+        "cost_sources": load_costs()["sources"],
+        "one_way_delay_ms": 20,
+        "rows": sweep(),
         "disclaimer": (
-            "Throughput is the first-order bandwidth bound T(N) <= B / (fanout * N^2 * S) "
-            "at B = 1 Gbps. It is not a measured transactions-per-second from a cluster."
+            "Bytes are message-pattern times FIPS signature length. "
+            "Milliseconds add published PQShield verify/sign medians on the critical path. "
+            "Not a cluster, NS-3, or IBM Quantum measurement."
         ),
-        "safety_grid": safety,
-        "configurations": [
-            {
-                "n": r.n,
-                "f": r.f,
-                "rounds": r.rounds,
-                "decisions": r.decisions,
-                "empty_blocks": r.empty_blocks,
-                "safety_violations": r.safety_violations,
-                "unique_primaries": r.unique_primaries,
-                "mean_quorum": round(r.mean_quorum, 2),
-                "adaptive_tps_bound": round(r.adaptive_tps, 3),
-                "naive_mldsa87_tps_bound": round(r.naive_pqc_tps, 3),
-                "ecdsa_tps_bound": round(r.ecdsa_tps, 3),
-                "signature_mix": r.adaptive_sig_mix,
-            }
-            for r in reports
-        ],
     }
-    out = ROOT / "benchmarks" / "results" / "simulation.json"
+    out = ROOT / "benchmarks" / "results" / "evaluation.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(payload, indent=2) + "\n")
-    print(f"{'N':>4} {'f':>3} {'decisions':>10} {'empty':>6} {'viol':>5} {'Q':>6} {'adapt TPS':>10} {'naive TPS':>10}")
-    for r in reports:
-        print(
-            f"{r.n:4d} {r.f:3d} {r.decisions:10d} {r.empty_blocks:6d} {r.safety_violations:5d} "
-            f"{r.mean_quorum:6.1f} {r.adaptive_tps:10.2f} {r.naive_pqc_tps:10.2f}"
-        )
-    print(f"\nWrote {out}")
+    print(f"{'protocol':<18} {'N':>4} {'scheme':<12} {'MB':>10} {'crit ms':>10}")
+    for row in payload["rows"]:
+        if row["n"] not in (4, 64):
+            continue
+        mb = row["bytes"] / 1e6
+        crit = "" if row["critical_path_ms"] is None else f"{row['critical_path_ms']:.1f}"
+        print(f"{row['protocol']:<18} {row['n']:4d} {row['scheme']:<12} {mb:10.2f} {crit:>10}")
+    print(f"wrote {out}")
 
 
 if __name__ == "__main__":
