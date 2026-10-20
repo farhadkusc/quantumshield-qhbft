@@ -9,6 +9,7 @@ Organization names are scenario labels for the class of institution a test row s
 | File | Role |
 | --- | --- |
 | `organizations.csv` | One row per scenario label. |
+| `attack_scenario.json` | Grey Harbor tabletop inject. Fictional adversary and fictional sites. |
 | `MANIFEST.json` | Counts, seed 20261020, and the statement above. |
 
 Each row is a deployment scenario: committee size `3f+1`, an assumed one-way delay, and a policy profile. `run_dummy` calls `select_signature` and `decision_cost`. Delays are assumptions. Cryptographic microseconds still come only from `data/published_costs.json`.
@@ -22,5 +23,7 @@ Each row is a deployment scenario: committee size `3f+1`, an assumed one-way del
 - Universities and research laboratories used as external comparison labels, including three DoD FFRDC-shaped rows (MIT Lincoln Laboratory, CMU SEI, Johns Hopkins APL).
 
 `policy_profile` is an input to a test, not that institution's policy. `assumed_one_way_ms` is not a measured latency. Stack ids (`SYN-STACK-*`) are planted consortia for the graph fixture, not threat groups and not partnerships.
+
+Grey Harbor (`SYN-EXERCISE-GREY-HARBOR`) is the shared attack inject. `SYN-ACTOR-HARBOR` is fictional. The blue-cell ids are exercise roles, not statements that those organizations were compromised. IBM Quantum is listed out of scope so the inject is not read as a device event.
 
 Regenerate with `python3 benchmarks/build_dummy_fixtures.py`. The seed is fixed.

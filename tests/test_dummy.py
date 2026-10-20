@@ -52,6 +52,18 @@ class DummyDeploymentTests(unittest.TestCase):
         self.assertGreater(strict, 40)
         self.assertGreater(stepped, 5)
 
+    def test_grey_harbor_locks_every_blue_cell_row(self):
+        scenario = run_dummy()["attack_scenario"]
+        self.assertEqual(scenario["exercise_id"], "SYN-EXERCISE-GREY-HARBOR")
+        self.assertEqual(scenario["threat"], "HIGH")
+        self.assertEqual(scenario["signature_lock"], "ML-DSA-87")
+        self.assertTrue(all(row["inject_scheme"] == "ML-DSA-87" for row in scenario["blue_cell"]))
+        changed = [row for row in scenario["blue_cell"] if row["baseline_scheme"] != row["inject_scheme"]]
+        self.assertEqual([row["org_id"] for row in changed], ["IBM-XFORCE"])
+        self.assertEqual(changed[0]["baseline_scheme"], "ML-DSA-65")
+        self.assertGreater(changed[0]["bytes_inject"], changed[0]["bytes_baseline"])
+        self.assertIn("IBM-QUANTUM", scenario["out_of_scope"])
+
     def test_public_evaluation_is_untouched(self):
         public = json.loads((ROOT / "benchmarks" / "results" / "evaluation.json").read_text())
         self.assertEqual(public["package"], "quantumshield-qhbft")
@@ -61,6 +73,7 @@ class DummyDeploymentTests(unittest.TestCase):
         self.assertEqual(saved["kind"], "synthetic-fixture")
         self.assertEqual(saved["n_organizations"], 106)
         self.assertEqual(saved["scheme_counts"]["ML-DSA-87"] + saved["scheme_counts"]["ML-DSA-65"], 106)
+        self.assertEqual(saved["attack_scenario"]["exercise_id"], "SYN-EXERCISE-GREY-HARBOR")
 
 
 if __name__ == "__main__":
