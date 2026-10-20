@@ -2,7 +2,7 @@
 
 Closed-form cost of Byzantine consensus once signatures are ML-DSA instead of ECDSA-P384.
 
-Author: **Md Farhad Kabir**. Package **0.2.0**.
+Author: **Md Farhad Kabir**. Package **0.2.1**.
 
 Signature lengths are FIPS 204 Table 2 (13 August 2024): ML-DSA-44 is 2,420 bytes, ML-DSA-65 is 3,309, ML-DSA-87 is 4,627. Sign and verify times are the medians published by the [PQShield NIST Signature Zoo](https://pqshield.github.io/nist-sigs-zoo) for an Intel Xeon Platinum 8488C on 22 September 2026 (1,000 iterations): ML-DSA-87 signs in 96.7 µs and verifies in 54.1 µs. Those times were not remeasured here. ECDSA-P384 is carried as a 96-byte signature only. No ECDSA timing from that host is cited, so the ECDSA rows have a byte count and a null critical path.
 
@@ -45,6 +45,15 @@ python3 benchmarks/plot_results.py
 ```
 
 The byte chart is [docs/figures/results.svg](docs/figures/results.svg).
+
+## Synthetic fixtures
+
+`data/dummy/organizations.csv` is a deployment scenario for every U.S. cabinet department, the 17 DOE national laboratories, selected federal components, IBM research and security units, and a fixed list of universities and research centers. `policy_profile=nss` or `cnsa-aligned` stays on ML-DSA-87. Commercial and academic rows step down to ML-DSA-65 only when the rule in `select_signature` says so. One-way delays in that file are assumptions. The IBM Quantum row is a fictional research network, not a device trace.
+
+```bash
+python3 -m unittest tests/test_dummy.py
+python3 benchmarks/run_dummy.py
+```
 
 ## What this is not
 

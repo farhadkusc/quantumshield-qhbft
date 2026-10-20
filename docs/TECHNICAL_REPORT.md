@@ -1,6 +1,6 @@
 # Technical report
 
-**Version 0.2.0.** Author: Md Farhad Kabir.
+**Version 0.2.1.** Author: Md Farhad Kabir.
 
 ## Cost model
 
@@ -33,3 +33,7 @@ At \(n=64\), \(f=21\) and \(q=43\). A replica on the PBFT path verifies \(1+2(q-
 ## Not shown
 
 View-change under delay, GST estimation, constant-time signing, or a comparison against liboqs on this machine. Those need a benchmark host. The formulas are in `src/qhbft/costs.py` so a later host-specific timing file can replace the PQShield medians without touching the message accounting.
+
+## Synthetic fixtures
+
+`data/dummy/organizations.csv` runs `select_signature` and `decision_cost` once per scenario label. The labels cover cabinet departments, DOE laboratories, IBM units, and research centers. `nss` and `cnsa-aligned` are selector inputs, not a statement of that institution's policy. `assumed_one_way_ms` is not a measured delay. The IBM Quantum row is not a QPU trace. Output is `benchmarks/results/dummy_evaluation.json`.
