@@ -11,21 +11,27 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from qhbft.costs import load_costs, sweep  # noqa: E402
-from qhbft.roundsim import complexity, empty_block_fallback, honest_round  # noqa: E402
+from qhbft.roundsim import empty_block_fallback, honest_round, link_budget  # noqa: E402
 from qhbft.safety import exhaustive_n4  # noqa: E402
 
 
 def main() -> None:
     payload = {
         "package": "quantumshield-qhbft",
-        "version": "0.2.3",
+        "version": "0.2.4",
         "safety_n4": exhaustive_n4(),
         "cost_sources": load_costs()["sources"],
         "one_way_delay_ms": 20,
         "honest_rounds": [honest_round(n) for n in (4, 16, 64)],
         "empty_block": [empty_block_fallback(n) for n in (4, 16, 64)],
-        "complexity": [
-            complexity(n, 4627, verify_seconds=54.1e-6, one_way_seconds=0.020) for n in (4, 16, 64)
+        "link_budget_ml_dsa_87": [
+            link_budget(
+                n,
+                signature_bytes=4627,
+                sign_seconds=96.7e-6,
+                verify_seconds=54.1e-6,
+            )
+            for n in (4, 16, 64)
         ],
         "rows": sweep(),
         "disclaimer": (

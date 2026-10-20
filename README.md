@@ -2,15 +2,21 @@
 
 Closed-form cost of Byzantine consensus once signatures are ML-DSA instead of ECDSA-P384.
 
-Author: **Md Farhad Kabir**. Package **0.2.3**.
+Author: **Md Farhad Kabir**. Package **0.2.4**.
 
 Signature lengths are FIPS 204 Table 2 (13 August 2024): ML-DSA-44 is 2,420 bytes, ML-DSA-65 is 3,309, ML-DSA-87 is 4,627. Sign and verify times are the medians published by the [PQShield NIST Signature Zoo](https://pqshield.github.io/nist-sigs-zoo) for an Intel Xeon Platinum 8488C on 22 September 2026 (1,000 iterations): ML-DSA-87 signs in 96.7 µs and verifies in 54.1 µs. Those times were not remeasured here. ECDSA-P384 is carried as a 96-byte signature only. No ECDSA timing from that host is cited, so the ECDSA rows have a byte count and a null critical path.
 
-## Protocol counts
+## One decision, ML-DSA-87, 20 ms delay, 1 Gbps
 
-An honest round follows the concept paper: one PRE-PREPARE, then every validator broadcasts PREPARE, then every validator broadcasts COMMIT. At n = 64 that is 8,127 messages. The empty-block fallback is n(n−1) PREPARE messages, 4,032 at n = 64.
+Bytes and seconds are not added. A latency bound is `1 / critical path`. A bandwidth bound is `125,000,000 / egress bytes`. The critical path is three hops, three signatures, and `1 + 2(q − 1)` verifications, using the PQShield medians of 96.7 µs to sign and 54.1 µs to verify.
 
-Section 7.3 of the concept paper bounds throughput by `B / (N² · S)` with B = 1 Gbps. With S = 4,627 the bound is 6.5955 decisions per second at N = 64, 105.53 at N = 16, and 1,688.46 at N = 4. The byte term `N² · S` at N = 64 is 18,952,192.
+| n | Messages | Aggregate bytes | Quorum bytes | Latency | Latency bound | Primary egress bound | Aggregate bound | Quorum bound | N² bound |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 4 | 27 | 124,929 | 69,405 | 0.0606 s | 16.51 /s | 3,001.7 /s | 1,000.6 /s | 1,801.0 /s | 1,688.5 /s |
+| 16 | 495 | 2,290,365 | 1,068,837 | 0.0614 s | 16.28 /s | 600.3 /s | 54.58 /s | 117.0 /s | 105.53 /s |
+| 64 | 8,127 | 37,603,629 | 16,911,685 | 0.0649 s | 15.41 /s | 142.94 /s | 3.324 /s | 7.391 /s | 6.596 /s |
+
+The N² column is `B / (N² · S)` with `B = 1 Gbps` and `S = 4,627`. At n = 64 it is 6.596 decisions per second. The aggregate column uses the 8,127 messages actually sent and is 3.324 per second on one shared link. The primary column is the bound when each validator has its own 1 Gbps link: the primary sends `3(n − 1)` signatures. The quorum column restricts the broadcast to `q + 2q(q − 1)` messages.
 
 ## What is counted
 

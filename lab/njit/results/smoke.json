@@ -1,13 +1,13 @@
 {
   "package": "quantumshield-qhbft",
-  "package_version": "0.2.3",
+  "package_version": "0.2.4",
   "profile": "smoke",
-  "host": "hds-ssx0maqdcfqj",
+  "host": "hds-6u865akbnfu3",
   "ran_on_wulver": false,
   "purpose": "Monte Carlo check of quorum intersection, plus the closed-form ML-DSA-87 cost grid.",
   "n_pairs_per_committee": 4000,
   "workers": 2,
-  "elapsed_sec": 0.028,
+  "elapsed_sec": 0.027,
   "intersection": [
     {
       "n": 16,

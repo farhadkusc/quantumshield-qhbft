@@ -1,13 +1,21 @@
 # Validation report
 
-**Paper.** QH-BFT concept summary, April 2026, in `docs/QuantumShield_Concept_Summary_v3.docx`.
+**Paper.** QH-BFT concept summary, April 2026, `docs/QuantumShield_Concept_Summary_v3.docx`.
 
-**Repository.** Package 0.2.3. Figures below are `benchmarks/results/evaluation.json`.
+**Repository.** Package 0.2.4. Figures are `benchmarks/results/evaluation.json`.
 
-The signature rule, the `2f+1` quorum, and the n = 4 exhaustive intersection check match the paper. An honest round of the paper's broadcast steps produces 27, 495, and 8,127 messages at n = 4, 16, and 64. The empty-block fallback produces n(n−1) messages.
+Bytes, seconds, and decisions per second are separate fields. At n = 64, ML-DSA-87, 20 ms one-way delay:
 
-Section 7.3 with B = 1 Gbps and S = 4,627 evaluates to 6.5955 decisions per second at n = 64. The byte term N²·S is 18,952,192. FIPS lengths are 2,420, 3,309, and 4,627. The length ratio against a 96-byte ECDSA-P384 signature is 48.20.
+| Bound | Value |
+| --- | ---: |
+| Messages in one honest round | 8,127 |
+| Aggregate signature bytes | 37,603,629 |
+| Quorum-only signature bytes | 16,911,685 |
+| Critical-path latency | 0.0649 s |
+| Latency bound | 15.41 /s |
+| Primary egress bound, own 1 Gbps link | 142.94 /s |
+| Aggregate bound, one shared 1 Gbps link | 3.324 /s |
+| Quorum bound, one shared 1 Gbps link | 7.391 /s |
+| `B / (N² · S)` with S = 4,627 | 6.596 /s |
 
-The message-pattern table (PBFT, quorum, HotStuff) is the same closed form as before. At n = 64, PBFT with ML-DSA-87 is 37,608,256 bytes and 64.889 ms.
-
-The concept paper's Table 8.4 is not copied into this file. The numbers above are the run of this repository.
+The n = 4 exhaustive check still has 0 non-intersecting quorums. FIPS 204 lengths are 2,420, 3,309, and 4,627.

@@ -1,6 +1,6 @@
 {
   "package": "quantumshield-qhbft",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "safety_n4": {
     "n": 4,
     "f": 1,
@@ -77,33 +77,66 @@
       "advanced": true
     }
   ],
-  "complexity": [
+  "link_budget_ml_dsa_87": [
     {
       "n": 4,
+      "quorum": 3,
+      "messages": 27,
+      "quorum_messages": 15,
       "signature_bytes": 4627,
-      "n_squared_messages": 16,
-      "byte_term": 74032,
-      "verify_term_seconds": 0.0008656,
-      "delay_seconds": 0.02,
-      "throughput_bound_per_s": 1688.4590447374107
+      "aggregate_bytes": 124929,
+      "quorum_bytes": 69405,
+      "primary_egress_bytes": 41643,
+      "replica_egress_bytes": 27762,
+      "critical_path_verifies": 5,
+      "critical_path_signs": 3,
+      "latency_seconds": 0.0605606,
+      "latency_bound_per_s": 16.512385940694116,
+      "primary_bandwidth_bound_per_s": 3001.7049684220638,
+      "replica_bandwidth_bound_per_s": 4502.557452633096,
+      "aggregate_bandwidth_bound_per_s": 1000.5683228073545,
+      "quorum_bandwidth_bound_per_s": 1801.0229810532383,
+      "paper_n2_bound_per_s": 1688.4590447374107
     },
     {
       "n": 16,
+      "quorum": 11,
+      "messages": 495,
+      "quorum_messages": 231,
       "signature_bytes": 4627,
-      "n_squared_messages": 256,
-      "byte_term": 1184512,
-      "verify_term_seconds": 0.0138496,
-      "delay_seconds": 0.02,
-      "throughput_bound_per_s": 105.52869029608817
+      "aggregate_bytes": 2290365,
+      "quorum_bytes": 1068837,
+      "primary_egress_bytes": 208215,
+      "replica_egress_bytes": 138810,
+      "critical_path_verifies": 21,
+      "critical_path_signs": 3,
+      "latency_seconds": 0.0614262,
+      "latency_bound_per_s": 16.279698239513433,
+      "primary_bandwidth_bound_per_s": 600.3409936844128,
+      "replica_bandwidth_bound_per_s": 900.5114905266191,
+      "aggregate_bandwidth_bound_per_s": 54.57645397131025,
+      "quorum_bandwidth_bound_per_s": 116.94954422423625,
+      "paper_n2_bound_per_s": 105.52869029608817
     },
     {
       "n": 64,
+      "quorum": 43,
+      "messages": 8127,
+      "quorum_messages": 3655,
       "signature_bytes": 4627,
-      "n_squared_messages": 4096,
-      "byte_term": 18952192,
-      "verify_term_seconds": 0.2215936,
-      "delay_seconds": 0.02,
-      "throughput_bound_per_s": 6.595543143505511
+      "aggregate_bytes": 37603629,
+      "quorum_bytes": 16911685,
+      "primary_egress_bytes": 874503,
+      "replica_egress_bytes": 583002,
+      "critical_path_verifies": 85,
+      "critical_path_signs": 3,
+      "latency_seconds": 0.0648886,
+      "latency_bound_per_s": 15.411027514848524,
+      "primary_bandwidth_bound_per_s": 142.9383318296221,
+      "replica_bandwidth_bound_per_s": 214.40749774443313,
+      "aggregate_bandwidth_bound_per_s": 3.3241472518516764,
+      "quorum_bandwidth_bound_per_s": 7.391339183529022,
+      "paper_n2_bound_per_s": 6.595543143505511
     }
   ],
   "rows": [

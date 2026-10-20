@@ -1,9 +1,9 @@
-"""Honest execution of the QH-BFT normal case and the empty-block fallback.
+"""Honest execution of one QH-BFT decision, and dimensionally separate bounds.
 
-Message counts follow the concept paper's broadcast steps: the primary
-sends PRE-PREPARE, every validator sends PREPARE, every validator sends
-COMMIT after 2f+1 prepares. The throughput bound is the paper's
-T(N) <= B / (N^2 * S) with B = 1 Gbps and S the FIPS signature length.
+Message counts follow the broadcast steps: the primary sends PRE-PREPARE,
+every validator sends PREPARE, every validator sends COMMIT after 2f+1
+prepares. Bytes, seconds, and decisions per second are reported as separate
+quantities.
 """
 
 from __future__ import annotations
@@ -44,19 +44,56 @@ def empty_block_fallback(n: int) -> dict:
 
 
 def throughput_bound(n: int, signature_bytes: int, bandwidth_bps: float = 1_000_000_000) -> float:
-    """Paper section 7.3. B is 1 Gbps, converted to bytes per second."""
+    """B / (N^2 * S) at B = 1 Gbps, in decisions per second."""
     return (bandwidth_bps / 8.0) / (n * n * signature_bytes)
 
 
-def complexity(n: int, signature_bytes: int, verify_seconds: float, one_way_seconds: float) -> dict:
-    """C(N) = N^2 * (S + V) + D with alpha = beta = gamma = 1, in bytes, seconds, seconds."""
-    messages = n * n
+def link_budget(
+    n: int,
+    signature_bytes: int,
+    sign_seconds: float,
+    verify_seconds: float,
+    one_way_seconds: float = 0.020,
+    bandwidth_bps: float = 1_000_000_000,
+) -> dict:
+    """One honest decision.
+
+    The critical path is three hops. The primary signs once per hop. A replica
+    verifies one PRE-PREPARE and q-1 messages in each of PREPARE and COMMIT.
+    A 1 Gbps link is 125,000,000 bytes per second. The primary bound divides
+    that by the bytes the primary sends. The aggregate bound divides it by
+    every signature byte in the round. The N^2 bound uses N^2 instead of the
+    message count. None of these is a measured transaction rate.
+    """
+    if sign_seconds is None or verify_seconds is None:
+        raise ValueError("sign and verify times are required")
+    round_ = honest_round(n)
+    q = round_["quorum"]
+    messages = round_["messages"]
+    q_messages = q + 2 * q * (q - 1)
+    primary_bytes = 3 * (n - 1) * signature_bytes
+    replica_bytes = 2 * (n - 1) * signature_bytes
+    aggregate_bytes = messages * signature_bytes
+    quorum_bytes = q_messages * signature_bytes
+    latency = 3 * one_way_seconds + 3 * sign_seconds + (1 + 2 * (q - 1)) * verify_seconds
+    bytes_per_s = bandwidth_bps / 8.0
     return {
         "n": n,
+        "quorum": q,
+        "messages": messages,
+        "quorum_messages": q_messages,
         "signature_bytes": signature_bytes,
-        "n_squared_messages": messages,
-        "byte_term": messages * signature_bytes,
-        "verify_term_seconds": messages * verify_seconds,
-        "delay_seconds": one_way_seconds,
-        "throughput_bound_per_s": throughput_bound(n, signature_bytes),
+        "aggregate_bytes": aggregate_bytes,
+        "quorum_bytes": quorum_bytes,
+        "primary_egress_bytes": primary_bytes,
+        "replica_egress_bytes": replica_bytes,
+        "critical_path_verifies": 1 + 2 * (q - 1),
+        "critical_path_signs": 3,
+        "latency_seconds": latency,
+        "latency_bound_per_s": 1.0 / latency,
+        "primary_bandwidth_bound_per_s": bytes_per_s / primary_bytes,
+        "replica_bandwidth_bound_per_s": bytes_per_s / replica_bytes,
+        "aggregate_bandwidth_bound_per_s": bytes_per_s / aggregate_bytes,
+        "quorum_bandwidth_bound_per_s": bytes_per_s / quorum_bytes,
+        "paper_n2_bound_per_s": bytes_per_s / (n * n * signature_bytes),
     }
