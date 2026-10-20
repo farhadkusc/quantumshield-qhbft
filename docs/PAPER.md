@@ -1,28 +1,53 @@
 # QH-BFT
 
-Byte, latency, and bandwidth bounds for one Byzantine consensus decision when signatures are FIPS 204 ML-DSA.
+Byte, latency, and bandwidth accounting for one Byzantine consensus decision when the signature is FIPS 204 ML-DSA.
 
 Md Farhad Kabir
 
-Research draft for package 0.2.4, aligned with `benchmarks/results/evaluation.json` and `benchmarks/results/dummy_evaluation.json`. Repository farhadkusc/quantumshield-qhbft.
+Research draft for package 0.2.4. Every figure in this draft is taken from `benchmarks/results/evaluation.json` or `benchmarks/results/dummy_evaluation.json` in farhadkusc/quantumshield-qhbft. Bytes, seconds, and decisions per second are separate fields. They are not added.
 
 ## Abstract
 
-An honest round follows PRE-PREPARE, PREPARE, and COMMIT. At n = 64 the round sends 8127 messages. With ML-DSA-87 those messages are 37603629 bytes. The critical path at a 20 ms one-way delay is 0.0648886 seconds, which is 15.411027514848524 decisions per second. A 1 Gbps link that has to carry every signature byte in the round supports 3.3241472518516764 decisions per second. The primary, sending only its own egress on a 1 Gbps link, supports 142.9383318296221. The formula B / (N² · S) at B = 1 Gbps and S = 4627 is 6.595543143505511. Bytes, seconds, and decisions per second are separate fields.
+An honest round has three broadcasts. The primary sends PRE-PREPARE to the other n − 1 validators. Every validator sends PREPARE to the other n − 1. Every validator sends COMMIT to the other n − 1 after it has seen q = 2f + 1 prepares. At n = 64 that is 8127 messages. With an ML-DSA-87 signature of 4627 bytes the round moves 37603629 signature bytes.
 
-## 1. Parameters
+The critical path is three network hops, three signatures, and 85 verifications. At a 20 ms one-way delay, using the published medians of 96.7 microseconds to sign and 54.1 microseconds to verify, the path is 0.0648886 seconds. The reciprocal is 15.411027514848524 decisions per second.
 
-Signature lengths are FIPS 204 Table 2, 13 August 2024: ML-DSA-44 is 2420 bytes, ML-DSA-65 is 3309, ML-DSA-87 is 4627. ECDSA-P384 is carried as 96 bytes. Sign and verify medians used on the critical path are the PQShield NIST Signature Zoo values stored in `data/published_costs.json`: ML-DSA-87 sign 96.7 microseconds, verify 54.1 microseconds. The default one-way delay is 20 ms.
+A 1 Gbps link carries 125000000 bytes per second. If that one link must carry every signature byte in the round, the bound is 3.3241472518516764 decisions per second. If the primary has its own 1 Gbps link and sends only the 3(n − 1) signatures it originates, the bound is 142.9383318296221. The formula B / (N² · S) with the same B and S is 6.595543143505511. Restricting the broadcast to a quorum of 43 yields 7.391339183529022 on one shared link.
 
-For n = 3f + 1 the quorum is q = 2f + 1. Any two sets of size q intersect in at least f + 1 seats. At n = 4, f = 1, the exhaustive check has 6 pairs and 0 non-intersecting pairs.
+## 1. Cryptographic sizes
 
-## 2. Signature rule
+Lengths are FIPS 204 Table 2, dated 13 August 2024, as stored in `data/published_costs.json`.
 
-`select_signature` in `src/qhbft/protocol.py` returns ML-DSA-87 when the round is an empty-block fallback, when threat is HIGH, or when the deployment is NSS. It returns ML-DSA-65 when none of those hold and load is above 0.75. Otherwise it returns ML-DSA-87.
+| Scheme | Public key bytes | Signature bytes | Sign, microseconds | Verify, microseconds | NIST category |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| ML-DSA-44 | 1312 | 2420 | 46.7 | 21.6 | 2 |
+| ML-DSA-65 | 1952 | 3309 | 76.1 | 34.7 | 3 |
+| ML-DSA-87 | 2592 | 4627 | 96.7 | 54.1 | 5 |
+| ECDSA-P384 | 49 | 96 | none | none | none |
 
-## 3. Honest round
+The microsecond columns are medians published by the PQShield NIST Signature Zoo for an Intel Xeon Platinum 8488C, benchmark dated 22 September 2026, median of 1000 iterations. They are inputs to the arithmetic in this repository. They were not remeasured here. ECDSA-P384 is carried as a 96-byte signature because that is the length used in the comparison. No ECDSA timing from that host is in the cost file, so every ECDSA critical path is null.
 
-The primary sends PRE-PREPARE to the other n − 1 validators. Every validator sends PREPARE to the other n − 1. Every validator sends COMMIT to the other n − 1. The empty-block fallback is one PREPARE broadcast from each validator, n(n − 1) messages.
+The ratio of signature lengths ML-DSA-87 / ECDSA-P384 is 4627 / 96. The byte tables below scale with that ratio wherever the message count is the same.
+
+## 2. Quorum intersection
+
+A deployment size in this repository satisfies n = 3f + 1 and n ≥ 4. The quorum size is q = 2f + 1. Any two subsets of size q intersect in at least f + 1 seats. If at most f seats are Byzantine, that intersection contains at least one honest seat. The predicate is `intersects_honestly` in `src/qhbft/safety.py`.
+
+At n = 4, f = 1, every 3-subset of a 4-set is a quorum. There are 6 unordered pairs of such quorums. The exhaustive count of pairs that fail the intersection test is 0.
+
+## 3. Who may use the shorter signature
+
+`select_signature(load, threat, nss, in_fallback)` in `src/qhbft/protocol.py` returns ML-DSA-87 when any of the following holds: the round is the empty-block fallback, the threat level is HIGH, or the deployment is marked NSS. If none of those holds and load is strictly above 0.75, the function returns ML-DSA-65. In every remaining case it returns ML-DSA-87. ML-DSA-44 is a stored length. It is not a return value of this rule.
+
+Tier assignment and quorum membership are separate from the byte arithmetic. `assign_tiers` maps a reliability score R in [0, 1] to floor(R · k) clipped to k − 1, with k = 3. `quorum_ids` fills 2f + 1 seats from the highest tier downward. The sample size at a tier is the ceiling of (2f + 1) times (tier + 1) / k. `primary_id` rotates through the top tier with the view index. The byte tables do not depend on which identifiers are chosen. They depend on how many validators speak.
+
+## 4. Honest round
+
+The message count in `honest_round` is
+
+M(n) = (n − 1) + 2 · n · (n − 1) = (n − 1) · (2n + 1).
+
+The first term is PRE-PREPARE. The two remaining terms are PREPARE and COMMIT. The empty-block fallback is a single PREPARE broadcast from each validator, E(n) = n · (n − 1). Both functions require n = 3f + 1.
 
 | n | f | Quorum | PRE-PREPARE | PREPARE | COMMIT | Messages | Empty-block messages |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -30,9 +55,27 @@ The primary sends PRE-PREPARE to the other n − 1 validators. Every validator s
 | 16 | 5 | 11 | 15 | 240 | 240 | 495 | 240 |
 | 64 | 21 | 43 | 63 | 4032 | 4032 | 8127 | 4032 |
 
-## 4. Link budget, ML-DSA-87
+Check for n = 64. PRE-PREPARE is 63. PREPARE is 64 · 63 = 4032. COMMIT is 4032. The sum is 63 + 4032 + 4032 = 8127. The empty-block count is 64 · 63 = 4032.
 
-The critical path is three hops, three signatures, and 1 + 2(q − 1) verifications. A 1 Gbps link is 125000000 bytes per second. The primary bound divides that by the bytes the primary sends, which is 3(n − 1) signatures. The aggregate bound divides it by every signature byte in the round. The quorum bound uses q + 2q(q − 1) messages. The N² bound uses N² · S in the denominator.
+## 5. Critical path
+
+`link_budget` places three signatures and 1 + 2(q − 1) verifications on the path, plus three one-way delays. For ML-DSA-87,
+
+L(n) = 3 · 0.020 + 3 · 96.7 · 10^(−6) + (1 + 2(q − 1)) · 54.1 · 10^(−6) seconds.
+
+At n = 64, q = 43, the verification count is 1 + 2 · 42 = 85. Then
+
+L(64) = 0.060 + 0.0002901 + 85 · 0.0000541 = 0.060 + 0.0002901 + 0.0045985 = 0.0648886 seconds.
+
+The latency bound is the reciprocal, 15.411027514848524 decisions per second. The same arithmetic at n = 4, where the path verifies 5 signatures, gives 0.0605606 seconds and 16.512385940694116 decisions per second. At n = 16 the path verifies 21 signatures and takes 0.0614262 seconds, which is 16.279698239513433 decisions per second.
+
+The latency bound moves slowly with n because the 60 ms of propagation dominates the cryptographic term. The bandwidth bounds move quickly with n because the byte count is quadratic.
+
+## 6. Bandwidth bounds
+
+A 1 Gbps link is 125000000 bytes per second. Four denominators are reported.
+
+Primary egress is 3(n − 1) signatures: the primary sends PRE-PREPARE, PREPARE, and COMMIT. Replica egress is 2(n − 1) signatures. Aggregate bytes are M(n) · S. Quorum bytes use Q(n) = q + 2q(q − 1) messages, the count used by `decision_cost` for the qh-quorum pattern. The N² denominator is n² · S, which is the formula T(N) ≤ B / (N² · S) evaluated at B = 125000000 bytes per second.
 
 | n | Messages | Quorum messages | Aggregate bytes | Quorum bytes | Primary bytes | Replica bytes | Latency s | Latency bound | Primary bound | Aggregate bound | Quorum bound | N² bound |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -40,11 +83,29 @@ The critical path is three hops, three signatures, and 1 + 2(q − 1) verificati
 | 16 | 495 | 231 | 2290365 | 1068837 | 208215 | 138810 | 0.0614262 | 16.279698239513433 | 600.3409936844128 | 54.57645397131025 | 116.94954422423625 | 105.52869029608817 |
 | 64 | 8127 | 3655 | 37603629 | 16911685 | 874503 | 583002 | 0.0648886 | 15.411027514848524 | 142.9383318296221 | 3.3241472518516764 | 7.391339183529022 | 6.595543143505511 |
 
-Checks at n = 64. Messages = (64 − 1) + 2 · 64 · (64 − 1) = 8127. Aggregate bytes = 8127 · 4627 = 37603629. Primary bytes = 3 · 63 · 4627 = 874503. Verifications on the path = 1 + 2 · 42 = 85.
+Identities at n = 64, S = 4627.
 
-## 5. Closed-form message patterns
+Aggregate bytes = 8127 · 4627 = 37603629. Dividing 125000000 by that count gives 3.3241472518516764.
 
-`decision_cost` in `src/qhbft/costs.py` uses a second message count, n + 2n(n − 1) for PBFT, which is 8128 at n = 64 rather than 8127. HotStuff linear uses 3n messages and one certificate signature. The raw-certificate row adds n · q signature bytes. Critical-path milliseconds use the same sign and verify medians. ECDSA rows have a byte count and a null critical path.
+Primary bytes = 3 · 63 · 4627 = 874503. Dividing 125000000 by that count gives 142.9383318296221.
+
+Replica bytes = 2 · 63 · 4627 = 583002. Dividing 125000000 by that count gives 214.40749774443313.
+
+Quorum messages = 43 + 2 · 43 · 42 = 3655. Quorum bytes = 3655 · 4627 = 16911685. Dividing 125000000 by that count gives 7.391339183529022.
+
+N² bytes = 64 · 64 · 4627 = 18952192. Dividing 125000000 by 18952192 gives 6.595543143505511.
+
+The N² formula and the honest-round formula are different denominators. 8127 is (n − 1)(2n + 1). n² is 4096. The honest round sends more signature-carrying messages than n², so its shared-link bound, 3.3241472518516764, is lower than 6.595543143505511. The primary-link bound is higher than both because the primary does not send the other validators' messages.
+
+At n = 4 the same four bounds are 16.512385940694116, 3001.7049684220638, 1000.5683228073545, and 1688.4590447374107. At n = 16 they are 16.279698239513433, 600.3409936844128, 54.57645397131025, and 105.52869029608817.
+
+## 7. Second message count
+
+`decision_cost` in `src/qhbft/costs.py` uses a PBFT count of n + 2n(n − 1). At n = 64 that is 64 + 2 · 64 · 63 = 8128, one message above the 8127 of `honest_round`. The extra message is the difference between a pre-prepare fan-out of n and a fan-out of n − 1. Both counts are in the result file. The link-budget section uses 8127. The table in this section uses 8128 for the PBFT rows.
+
+The qh-quorum pattern speaks with q validators: q + 2q(q − 1) messages. HotStuff-linear uses 3n messages and treats the quorum certificate as one signature. HotStuff-raw-qc uses 2n messages and then adds n · q raw signatures for the certificate broadcast. The linear row is the byte count that would follow if a certificate were a single ML-DSA signature. FIPS 204 does not define that aggregate. The raw-certificate row is the byte count when the certificate carries q ML-DSA signatures.
+
+Critical-path milliseconds use the same sign and verify medians and a 20 ms hop. ECDSA rows have a byte count and a null critical path.
 
 | Protocol | n | Scheme | Messages | Quorum | Bytes | Critical path ms |
 | --- | ---: | --- | ---: | ---: | ---: | ---: |
@@ -67,14 +128,61 @@ Checks at n = 64. Messages = (64 − 1) + 2 · 64 · (64 − 1) = 8127. Aggregat
 | hotstuff-linear | 64 | ML-DSA-87 | 192 | 43 | 888384 | 42.574 |
 | hotstuff-raw-qc | 64 | ML-DSA-87 | 128 | 43 | 13325760 | 42.574 |
 
-## 6. Grey Harbor
+At n = 64 the PBFT ML-DSA-87 row is 8128 · 4627 = 37608256 bytes, with critical path 64.889 ms. The qh-quorum ML-DSA-87 row is 16911685 bytes. The qh-quorum ML-DSA-65 row is 12094395 bytes, which is the same message count times 3309. The HotStuff-linear ML-DSA-87 row is 888384 bytes. The HotStuff-raw-qc row is 13325760 bytes. The PBFT ECDSA-P384 row is 780288 bytes and its critical path is none.
 
-Exercise SYN-EXERCISE-GREY-HARBOR. Threat is HIGH, so the signature rule returns ML-DSA-87 on the blue cell. IBM-XFORCE is the row that changes: baseline ML-DSA-65, 764379 bytes, critical path 15.957 ms; inject ML-DSA-87, 1068837 bytes, critical path 16.426 ms. The organization file has 106 scenario labels.
+## 8. Grey Harbor
 
-## 7. Reproduce
+Exercise SYN-EXERCISE-GREY-HARBOR. Phase PH1. Threat is HIGH. Under the signature rule a HIGH threat locks every participant to ML-DSA-87. The sites are SYN-SITE-RIVER-SWITCH, SYN-SITE-LOCK-METER. The organization file contains 106 scenario labels.
+
+| Organization | Baseline scheme | Baseline bytes | Baseline path ms | Inject scheme | Inject bytes | Inject path ms |
+| --- | --- | ---: | ---: | --- | ---: | ---: |
+| FED-DOE | ML-DSA-87 | 1068837 | 61.426 | ML-DSA-87 | 1068837 | 61.426 |
+| FED-CISA | ML-DSA-87 | 1068837 | 61.426 | ML-DSA-87 | 1068837 | 61.426 |
+| FEDLAB-INL | ML-DSA-87 | 1068837 | 31.426 | ML-DSA-87 | 1068837 | 31.426 |
+| IBM-XFORCE | ML-DSA-65 | 764379 | 15.957 | ML-DSA-87 | 1068837 | 16.426 |
+| IBM-FEDERAL | ML-DSA-87 | 1068837 | 61.426 | ML-DSA-87 | 1068837 | 61.426 |
+| RES-CMU-SEI | ML-DSA-87 | 1068837 | 46.426 | ML-DSA-87 | 1068837 | 46.426 |
+
+IBM-XFORCE is the row whose scheme changes. The baseline is ML-DSA-65, 764379 bytes, critical path 15.957 ms. The inject is ML-DSA-87, 1068837 bytes, critical path 16.426 ms. The other listed organizations already sit on ML-DSA-87, so the inject does not change their byte count.
+
+## 9. Signature rule, case by case
+
+The function is a total map on the four arguments used by the tests.
+
+| Fallback | Threat | NSS | Load | Return |
+| --- | --- | --- | --- | --- |
+| yes | any | any | any | ML-DSA-87 |
+| no | HIGH | any | any | ML-DSA-87 |
+| no | not HIGH | yes | any | ML-DSA-87 |
+| no | not HIGH | no | above 0.75 | ML-DSA-65 |
+| no | not HIGH | no | 0.75 or below | ML-DSA-87 |
+
+The comparison with 0.75 is strict. A load of 0.75 stays on ML-DSA-87. Grey Harbor sets the threat to HIGH, so the first applicable row is the HIGH row and every blue-cell inject uses ML-DSA-87 even when the baseline for that organization was ML-DSA-65.
+
+## 10. One decision at n = 4
+
+f = 1 and q = 3. PRE-PREPARE is 3 messages, PREPARE is 12, COMMIT is 12, and the round is 27 messages. The empty-block fallback is 12 messages. Aggregate ML-DSA-87 bytes are 27 · 4627 = 124929. Primary egress is 3 · 3 · 4627 = 41643. The path verifies 5 signatures and signs 3. Latency is 0.0605606 seconds. The four throughput figures at this size are the latency bound 16.512385940694116, the primary bound 3001.7049684220638, the aggregate bound 1000.5683228073545, and the N² bound 1688.4590447374107.
+
+At this size the latency bound is the smallest of the four. Propagation, not the signature bytes, is the limiting term. At n = 64 the order reverses for the shared link: the aggregate bound 3.3241472518516764 is below the latency bound 15.411027514848524, while the primary's own link, at 142.9383318296221, remains above the latency bound. Which bound governs a deployment is a question of whether the messages share a link.
+
+## 11. Software
+
+| Path | Role |
+| --- | --- |
+| src/qhbft/roundsim.py | Honest round, empty block, link budget |
+| src/qhbft/costs.py | Closed-form patterns and the sweep |
+| src/qhbft/protocol.py | Signature rule, tiers, quorum identifiers, primary |
+| src/qhbft/safety.py | Intersection predicate and the n = 4 enumeration |
+| data/published_costs.json | FIPS lengths and the PQShield medians |
+| benchmarks/run_benchmark.py | Writes evaluation.json |
+| lab/njit/run_lab.py | Monte Carlo of committee draws for the NJIT Wulver cluster |
+
+## 12. Reproduce
+
+python3 -m unittest tests/test_protocol.py tests/test_dummy.py tests/test_lab_smoke.py
 
 python3 benchmarks/run_benchmark.py
 
 python3 benchmarks/run_dummy.py
 
-Code: `src/qhbft/roundsim.py` for the honest round and the link budget, and `src/qhbft/costs.py` for the closed-form rows.
+Package version recorded in the result file: 0.2.4.
