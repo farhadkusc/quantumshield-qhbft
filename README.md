@@ -2,7 +2,7 @@
 
 Closed-form cost of Byzantine consensus once signatures are ML-DSA instead of ECDSA-P384.
 
-Author: **Md Farhad Kabir**. Package **0.2.4**.
+Author: **Md Farhad Kabir**. Package **0.2.4**. The research draft is [docs/PAPER.md](docs/PAPER.md). The same text is `docs/QuantumShield_Concept_Summary_v3.docx`. Both are generated from `benchmarks/results/evaluation.json`.
 
 Signature lengths are FIPS 204 Table 2 (13 August 2024): ML-DSA-44 is 2,420 bytes, ML-DSA-65 is 3,309, ML-DSA-87 is 4,627. Sign and verify times are the medians published by the [PQShield NIST Signature Zoo](https://pqshield.github.io/nist-sigs-zoo) for an Intel Xeon Platinum 8488C on 22 September 2026 (1,000 iterations): ML-DSA-87 signs in 96.7 µs and verifies in 54.1 µs. Those times were not remeasured here. ECDSA-P384 is carried as a 96-byte signature only. No ECDSA timing from that host is cited, so the ECDSA rows have a byte count and a null critical path.
 
